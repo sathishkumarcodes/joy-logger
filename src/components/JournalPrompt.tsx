@@ -6,6 +6,7 @@ import { Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { MoodSelector } from "./MoodSelector";
 
 interface JournalPromptProps {
   onEntrySubmitted: () => void;
@@ -15,6 +16,7 @@ interface JournalPromptProps {
 
 export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: JournalPromptProps) => {
   const [entry, setEntry] = useState("");
+  const [mood, setMood] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const MAX_CHARS = 240;
@@ -41,10 +43,10 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
     setIsSubmitting(true);
 
     try {
-      // Generate AI reflection
+      // Generate AI reflection (and mood if not provided)
       const { data: reflectionData, error: reflectionError } = await supabase.functions.invoke(
         "generate-reflection",
-        { body: { entryText: entry } }
+        { body: { entryText: entry, moodScore: mood } }
       );
 
       if (reflectionError) throw reflectionError;
@@ -56,6 +58,7 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
           user_id: userId,
           entry_text: entry,
           ai_reflection: reflectionData.reflection,
+          mood_score: reflectionData.moodScore || mood,
           entry_date: new Date().toISOString().split('T')[0]
         });
 
@@ -64,6 +67,7 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
       fireConfetti();
       toast.success("Entry saved! ✨");
       setEntry("");
+      setMood(null);
       onEntrySubmitted();
     } catch (error: any) {
       console.error("Error submitting entry:", error);
@@ -98,6 +102,12 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
             Take a moment to reflect on something positive
           </p>
         </div>
+
+        <MoodSelector 
+          value={mood} 
+          onChange={setMood} 
+          disabled={isSubmitting}
+        />
 
         <div className="space-y-2">
           <Textarea
