@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,12 +7,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Sparkles, Mail, Loader2 } from "lucide-react";
 import FloatingParticles from "@/components/FloatingParticles";
+import SignInCelebration from "@/components/SignInCelebration";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        setShowCelebration(true);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +91,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/20 to-background p-4">
       <FloatingParticles />
+      {showCelebration && <SignInCelebration onComplete={() => navigate("/")} />}
       <Card className="p-8 max-w-md w-full space-y-6 animate-fade-up">
         <div className="text-center space-y-4">
           <Sparkles className="w-12 h-12 mx-auto text-primary animate-float" />
