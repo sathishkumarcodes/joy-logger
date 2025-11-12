@@ -6,7 +6,7 @@ import { EntryHistory } from "@/components/EntryHistory";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Loader2, Settings, LogOut } from "lucide-react";
+import { Loader2, Settings, LogOut, BarChart3 } from "lucide-react";
 
 const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -114,6 +114,13 @@ const Index = () => {
               </p>
             </div>
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigate("/stats")}
+              >
+                <BarChart3 className="w-4 h-4" />
+              </Button>
               <Button
                 variant="outline"
                 size="icon"
