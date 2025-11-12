@@ -258,22 +258,25 @@ const Stats = () => {
 
           {/* Mood Trend Chart */}
           {entries.length > 0 && (
-            <Card className="p-6">
-              <h3 className="text-xl font-semibold text-foreground mb-6">
+            <Card className="p-6 bg-gradient-to-br from-primary/5 via-transparent to-primary/5">
+              <h3 className="text-xl font-semibold text-foreground mb-2">
                 Mood Journey {timeRange <= 30 ? `(Last ${timeRange} Days)` : `(Last ${Math.min(timeRange, 30)} Days)`}
               </h3>
-              <ResponsiveContainer width="100%" height={200}>
+              <p className="text-sm text-muted-foreground mb-6">
+                {entries.filter(e => e.mood_score).length} entries with mood tracked
+              </p>
+              <ResponsiveContainer width="100%" height={250}>
                 <AreaChart data={moodChartData}>
                   <defs>
                     <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.5}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
                     </linearGradient>
                   </defs>
                   <XAxis 
                     dataKey="date" 
                     stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
+                    fontSize={11}
                     tickLine={false}
                     interval="preserveStartEnd"
                   />
@@ -283,29 +286,57 @@ const Stats = () => {
                     stroke="hsl(var(--muted-foreground))"
                     fontSize={12}
                     tickLine={false}
+                    label={{ value: 'Mood', angle: -90, position: 'insideLeft', style: { fill: 'hsl(var(--muted-foreground))' } }}
                   />
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      padding: '8px 12px'
+                      border: '2px solid hsl(var(--primary))',
+                      borderRadius: '12px',
+                      padding: '12px',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
                     }}
-                    formatter={(value: any) => value ? [`${value}/5`, 'Mood'] : ['No entry', '']}
+                    formatter={(value: any) => {
+                      if (!value) return ['No entry', ''];
+                      const emoji = value === 1 ? "😢" : value === 2 ? "😕" : value === 3 ? "🙂" : value === 4 ? "😌" : "😄";
+                      const label = value === 1 ? "Rough" : value === 2 ? "Meh" : value === 3 ? "Okay" : value === 4 ? "Good" : "Great";
+                      return [`${emoji} ${label} (${value}/5)`, 'Mood'];
+                    }}
+                    labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
                   />
                   <Area 
                     type="monotone" 
                     dataKey="mood" 
                     stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
+                    strokeWidth={3}
                     fill="url(#moodGradient)"
                     connectNulls
+                    dot={{ 
+                      fill: 'hsl(var(--primary))', 
+                      strokeWidth: 2, 
+                      r: 5,
+                      stroke: 'hsl(var(--background))'
+                    }}
+                    activeDot={{ 
+                      r: 8, 
+                      fill: 'hsl(var(--primary))',
+                      stroke: 'hsl(var(--background))',
+                      strokeWidth: 3
+                    }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
-              <p className="text-xs text-muted-foreground text-center mt-4">
-                Track your emotional patterns over time
-              </p>
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+                <p className="text-xs text-muted-foreground">
+                  Track your emotional patterns over time
+                </p>
+                <div className="flex items-center gap-4 text-xs">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded-full bg-primary" />
+                    <span className="text-muted-foreground">Entry logged</span>
+                  </div>
+                </div>
+              </div>
             </Card>
           )}
 
