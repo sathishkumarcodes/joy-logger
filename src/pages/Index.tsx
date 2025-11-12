@@ -107,10 +107,10 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="text-center flex-1 space-y-2">
               <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-                DailyGratitude
+                OneGoodThing
               </h1>
               <p className="text-muted-foreground text-lg">
-                One good thing, every day ✨
+                Find your joy, every day ✨
               </p>
             </div>
             <div className="flex gap-2">

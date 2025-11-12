@@ -77,14 +77,19 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/20 to-background p-4">
       <Card className="p-8 max-w-md w-full space-y-6">
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-3">
           <Sparkles className="w-12 h-12 mx-auto text-primary" />
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-            DailyGratitude
+            OneGoodThing
           </h1>
-          <p className="text-muted-foreground">
-            One good thing, every day ✨
-          </p>
+          <div className="space-y-2">
+            <p className="text-muted-foreground font-medium">
+              Loving yourself starts with finding joy in the everyday
+            </p>
+            <p className="text-sm text-muted-foreground/80 max-w-sm mx-auto">
+              No matter how your day went, there's always one good thing. This practice reminds you that joy exists, even in the smallest moments.
+            </p>
+          </div>
         </div>
 
         <form onSubmit={handleMagicLink} className="space-y-4">
