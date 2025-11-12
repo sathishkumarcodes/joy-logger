@@ -2,3 +2,6 @@ project_id = "rpfqagyqddroysqpinqv"
 
 [functions.generate-reflection]
 verify_jwt = false
+
+[functions.send-daily-reminders]
+verify_jwt = false
