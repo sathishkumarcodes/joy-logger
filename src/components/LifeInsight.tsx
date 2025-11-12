@@ -11,7 +11,7 @@ interface LifeInsightProps {
 }
 
 export const LifeInsight = ({ userId, entriesCount }: LifeInsightProps) => {
-  const [insight, setInsight] = useState<string | null>(null);
+  const [insight, setInsight] = useState<string | null>("You've been finding joy in life's simple pleasures—morning coffee, kind words from friends, and quiet moments of reflection. There's a beautiful pattern of gratitude emerging in your days, even when things feel challenging. Your ability to notice these small lights is a gift you're giving yourself.");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
