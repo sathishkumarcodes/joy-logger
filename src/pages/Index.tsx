@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { JournalPrompt } from "@/components/JournalPrompt";
 import { StreakCounter } from "@/components/StreakCounter";
 import { EntryHistory } from "@/components/EntryHistory";
+import { LifeInsight } from "@/components/LifeInsight";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -145,6 +146,13 @@ const Index = () => {
 
           {/* Streak Counter */}
           <StreakCounter streak={streak} />
+
+          {/* Life Insight */}
+          {entries.length >= 3 && (
+            <div className="animate-fade-up" style={{ animationDelay: "0.05s", animationFillMode: "both" }}>
+              <LifeInsight userId={user.id} entriesCount={entries.length} />
+            </div>
+          )}
 
           {/* Journal Prompt */}
           <div className="animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
