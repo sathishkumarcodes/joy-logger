@@ -23,6 +23,7 @@ const Stats = () => {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
   const [totalDays, setTotalDays] = useState(0);
+  const [timeRange, setTimeRange] = useState<7 | 30 | 60 | 90>(30);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -103,27 +104,33 @@ const Stats = () => {
   };
 
   const getHeatmapData = () => {
-    const start = startOfMonth(subMonths(new Date(), 2));
-    const end = endOfMonth(new Date());
-    const days = eachDayOfInterval({ start, end });
+    const today = new Date();
+    const startDate = subDays(today, timeRange - 1);
+    const days = eachDayOfInterval({ start: startDate, end: today });
 
     return days.map(day => {
-      const entry = entries.find(e => 
-        isSameDay(parseISO(e.entry_date), day)
-      );
+      const entry = entries.find(e => {
+        const entryDate = parseISO(e.entry_date);
+        return isSameDay(entryDate, day);
+      });
       return {
         date: day,
         hasEntry: !!entry,
-        moodScore: entry?.mood_score || 0
+        moodScore: entry?.mood_score || null
       };
     });
   };
 
   const getMoodChartData = () => {
-    // Get last 30 days of data
-    const last30Days = Array.from({ length: 30 }, (_, i) => {
-      const date = subDays(new Date(), 29 - i);
-      const entry = entries.find(e => isSameDay(parseISO(e.entry_date), date));
+    const today = new Date();
+    const daysToShow = Math.min(timeRange, 30); // Show max 30 days on chart for readability
+    
+    const chartData = Array.from({ length: daysToShow }, (_, i) => {
+      const date = subDays(today, daysToShow - 1 - i);
+      const entry = entries.find(e => {
+        const entryDate = parseISO(e.entry_date);
+        return isSameDay(entryDate, date);
+      });
       
       return {
         date: format(date, 'MMM d'),
@@ -132,11 +139,11 @@ const Stats = () => {
       };
     });
     
-    return last30Days;
+    return chartData;
   };
 
   const getMoodIntensityColor = (score: number | null) => {
-    if (!score) return "bg-muted";
+    if (score === null) return "bg-muted";
     
     // Map mood scores (1-5) to color intensities
     if (score === 1) return "bg-destructive/40";
@@ -144,6 +151,13 @@ const Stats = () => {
     if (score === 3) return "bg-primary/50";
     if (score === 4) return "bg-primary/70";
     return "bg-primary";
+  };
+
+  const getTimeRangeLabel = () => {
+    if (timeRange === 7) return "Last 7 Days";
+    if (timeRange === 30) return "Last Month";
+    if (timeRange === 60) return "Last 2 Months";
+    return "Last 3 Months";
   };
 
   if (authLoading || loading) {
@@ -211,10 +225,37 @@ const Stats = () => {
             <p className="text-sm text-muted-foreground mt-1">out of 5</p>
           </Card>
 
+          {/* Time Range Filters */}
+          <Card className="p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-muted-foreground">Time Range:</span>
+              <div className="flex gap-2">
+                {[
+                  { value: 7, label: "7D" },
+                  { value: 30, label: "1M" },
+                  { value: 60, label: "2M" },
+                  { value: 90, label: "3M" }
+                ].map(option => (
+                  <Button
+                    key={option.value}
+                    variant={timeRange === option.value ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setTimeRange(option.value as 7 | 30 | 60 | 90)}
+                    className="min-w-[60px]"
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </Card>
+
           {/* Mood Trend Chart */}
           {entries.length > 0 && (
             <Card className="p-6">
-              <h3 className="text-xl font-semibold text-foreground mb-6">Mood Journey (Last 30 Days)</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-6">
+                Mood Journey {timeRange <= 30 ? `(Last ${timeRange} Days)` : `(Last ${Math.min(timeRange, 30)} Days)`}
+              </h3>
               <ResponsiveContainer width="100%" height={200}>
                 <AreaChart data={moodChartData}>
                   <defs>
@@ -265,8 +306,8 @@ const Stats = () => {
           {/* Activity Heatmap */}
           <Card className="p-6">
             <h3 className="text-xl font-semibold text-foreground mb-4">Activity & Mood Intensity</h3>
-            <p className="text-sm text-muted-foreground mb-4">Last 3 months of journaling</p>
-            <div className="grid grid-cols-7 gap-2">
+            <p className="text-sm text-muted-foreground mb-4">{getTimeRangeLabel()}</p>
+            <div className={`grid gap-2 ${timeRange === 7 ? 'grid-cols-7' : 'grid-cols-7'}`}>
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                 <div key={day} className="text-xs text-center text-muted-foreground font-medium">
                   {day}
@@ -275,14 +316,17 @@ const Stats = () => {
               {heatmapData.map((day, idx) => {
                 const isToday = isSameDay(day.date, new Date());
                 const moodEmoji = day.moodScore === 1 ? "😢" : day.moodScore === 2 ? "😕" : day.moodScore === 3 ? "🙂" : day.moodScore === 4 ? "😌" : day.moodScore === 5 ? "😄" : "";
+                const moodText = day.moodScore ? `Mood ${day.moodScore}/5 ${moodEmoji}` : 'No entry';
                 return (
                   <div
-                    key={idx}
-                    className={`aspect-square rounded-sm transition-all hover:scale-110 ${
+                    key={`${day.date.toISOString()}-${idx}`}
+                    className={`aspect-square rounded-sm transition-all hover:scale-110 flex items-center justify-center ${
                       getMoodIntensityColor(day.moodScore)
-                    } ${isToday ? 'ring-2 ring-primary ring-offset-2' : ''}`}
-                    title={`${format(day.date, 'MMM d')}: ${day.hasEntry ? `Mood ${day.moodScore}/5 ${moodEmoji}` : 'No entry'}`}
-                  />
+                    } ${isToday ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
+                    title={`${format(day.date, 'MMM d, yyyy')}: ${moodText}`}
+                  >
+                    {isToday && <span className="text-[10px] font-bold text-primary-foreground">T</span>}
+                  </div>
                 );
               })}
             </div>
