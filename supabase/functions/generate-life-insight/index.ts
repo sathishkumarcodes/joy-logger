@@ -51,27 +51,58 @@ serve(async (req) => {
       );
     }
 
-    // Prepare entries summary for AI
-    const entriesSummary = entries.map(e => 
-      `${e.entry_date}: "${e.entry_text}" (mood: ${e.mood_score || 'not tracked'})`
-    ).join('\n');
+    // Calculate mood statistics
+    const moodEntries = entries.filter(e => e.mood_score !== null);
+    const avgMood = moodEntries.length > 0 
+      ? (moodEntries.reduce((sum, e) => sum + (e.mood_score || 0), 0) / moodEntries.length).toFixed(1)
+      : null;
+    
+    const moodTrend = moodEntries.length >= 3 ? (() => {
+      const recent = moodEntries.slice(0, Math.ceil(moodEntries.length / 2));
+      const older = moodEntries.slice(Math.ceil(moodEntries.length / 2));
+      const recentAvg = recent.reduce((sum, e) => sum + (e.mood_score || 0), 0) / recent.length;
+      const olderAvg = older.reduce((sum, e) => sum + (e.mood_score || 0), 0) / older.length;
+      
+      if (recentAvg > olderAvg + 0.5) return "improving";
+      if (recentAvg < olderAvg - 0.5) return "declining";
+      return "stable";
+    })() : "stable";
 
-    const systemPrompt = `You are a warm, insightful companion analyzing someone's recent journal entries. Your task is to write 2–3 warm, thoughtful sentences that:
+    // Prepare detailed entries summary for AI with mood analysis
+    const entriesSummary = entries.map(e => {
+      const moodLabel = e.mood_score === 1 ? "rough/struggling" : 
+                       e.mood_score === 2 ? "meh/low" : 
+                       e.mood_score === 3 ? "okay/neutral" : 
+                       e.mood_score === 4 ? "good/positive" : 
+                       e.mood_score === 5 ? "great/joyful" : "not tracked";
+      return `${e.entry_date}: "${e.entry_text}" [mood: ${moodLabel}]`;
+    }).join('\n');
 
-1. Describe what's going on in their life based on patterns in their entries
-2. Highlight emotional trends (e.g., "finding joy in small moments," "navigating challenges with resilience")
-3. Note any recurring themes (e.g., relationships, nature, accomplishments, self-care)
-4. Provide an uplifting, hopeful perspective
+    const systemPrompt = `You are analyzing someone's journal entries to provide a deeply personalized, accurate reflection of their life RIGHT NOW.
 
-Important guidelines:
-- Be genuine and personal, not generic
-- Use a warm, conversational tone
-- Avoid judgment, diagnosis, or advice
-- Focus on what you observe, not what they should do
-- Celebrate their journey and growth
-- Keep it to 2-3 sentences maximum`;
+CRITICAL INSTRUCTIONS:
+- Base EVERYTHING on the actual entries provided - mood scores, themes, and specific content
+- If mood is "improving", acknowledge their positive momentum
+- If mood is "declining", acknowledge challenges with compassion
+- If mood is "stable", note their consistency
+- Identify SPECIFIC recurring themes from their actual entries (e.g., work, relationships, hobbies, nature, creativity, health)
+- Reference the ACTUAL emotional state shown in their mood scores (don't assume positivity if moods are low)
+- Notice patterns: what activities or moments consistently appear? What brings them joy?
 
-    console.log('Generating life insight for', entries.length, 'entries');
+OUTPUT FORMAT:
+Write exactly 2-3 warm sentences that:
+1. Describe what's happening in their life based on ACTUAL patterns you see
+2. Acknowledge their emotional state accurately (don't sugarcoat if moods are low, but be compassionate)
+3. Highlight specific recurring themes from their entries
+4. End with an uplifting observation about their journey
+
+TONE: Warm, genuine, and specific to THEIR life. Avoid generic phrases. No advice, no diagnosis, no judgment.`;
+
+    const moodContext = avgMood 
+      ? `\n\nMood Statistics:\n- Average mood: ${avgMood}/5\n- Trend: ${moodTrend}\n- Total entries tracked: ${moodEntries.length}`
+      : '\n\nNote: User has not tracked moods yet, focus on entry content themes.';
+
+    console.log('Generating life insight for', entries.length, 'entries. Avg mood:', avgMood, 'Trend:', moodTrend);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -88,7 +119,7 @@ Important guidelines:
           },
           {
             role: 'user',
-            content: `Here are the recent journal entries:\n\n${entriesSummary}\n\nPlease provide a warm, insightful reflection about what's going on in this person's life.`
+            content: `Analyze these recent journal entries and provide a deeply accurate, personalized reflection:\n\n${entriesSummary}${moodContext}\n\nProvide your warm, insightful reflection (2-3 sentences only):`
           }
         ],
       }),

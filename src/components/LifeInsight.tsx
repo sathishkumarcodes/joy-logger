@@ -11,12 +11,12 @@ interface LifeInsightProps {
 }
 
 export const LifeInsight = ({ userId, entriesCount }: LifeInsightProps) => {
-  const [insight, setInsight] = useState<string | null>("You've been finding joy in life's simple pleasures—morning coffee, kind words from friends, and quiet moments of reflection. There's a beautiful pattern of gratitude emerging in your days, even when things feel challenging. Your ability to notice these small lights is a gift you're giving yourself.");
-  const [isLoading, setIsLoading] = useState(false);
+  const [insight, setInsight] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   const generateInsight = async () => {
-    if (entriesCount < 3) return; // Need at least 3 entries for meaningful insight
+    if (entriesCount < 1) return;
     
     setIsLoading(true);
     try {
