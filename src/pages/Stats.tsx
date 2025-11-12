@@ -326,30 +326,39 @@ const Stats = () => {
                 const dateFormatted = format(day.date, 'MM/dd/yyyy');
                 const hasEntry = day.hasEntry;
                 
+                console.log('Heatmap day:', dateFormatted, 'hasEntry:', hasEntry, 'entry:', day.entry);
+                
                 return (
                   <button
                     key={`${day.date.toISOString()}-${idx}`}
-                    onClick={() => day.entry && setSelectedEntry(day.entry)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      console.log('Button clicked!', dateFormatted, day.entry);
+                      if (day.entry) {
+                        setSelectedEntry(day.entry);
+                      }
+                    }}
+                    type="button"
                     disabled={!hasEntry}
                     className={`
                       relative aspect-square rounded-lg transition-all duration-200
                       flex flex-col items-center justify-center gap-0.5 p-2
                       ${hasEntry 
-                        ? `${getMoodIntensityColor(day.moodScore)} hover:scale-110 hover:shadow-glow cursor-pointer border-2 border-primary/20 hover:border-primary` 
+                        ? `${getMoodIntensityColor(day.moodScore)} hover:scale-110 hover:shadow-glow cursor-pointer border-2 border-primary/20 hover:border-primary active:scale-95` 
                         : 'bg-muted/30 border-2 border-muted cursor-not-allowed opacity-60'
                       }
                       ${isToday ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
                     `}
                     title={hasEntry ? `${dateFormatted}\n\n"${day.entry?.entry_text}"\n\nMood: ${moodEmoji} Click to view full entry` : `${dateFormatted}\nNo entry this day`}
                   >
-                    <span className={`text-[9px] font-bold ${hasEntry ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    <span className={`text-[9px] font-bold pointer-events-none ${hasEntry ? 'text-foreground' : 'text-muted-foreground'}`}>
                       {format(day.date, 'M/d')}
                     </span>
                     {hasEntry && moodEmoji && (
-                      <span className="text-base leading-none mt-0.5">{moodEmoji}</span>
+                      <span className="text-base leading-none mt-0.5 pointer-events-none">{moodEmoji}</span>
                     )}
                     {hasEntry && (
-                      <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                      <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-primary rounded-full animate-pulse pointer-events-none" />
                     )}
                   </button>
                 );
