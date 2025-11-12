@@ -59,7 +59,7 @@ export const LifeInsight = ({ userId, entriesCount }: LifeInsightProps) => {
     generateInsight();
   }, [entriesCount]); // Regenerate when entries count changes
 
-  if (entriesCount < 3) return null; // Don't show until user has at least 3 entries
+  if (entriesCount < 1) return null; // Don't show until user has at least 1 entry
 
   return (
     <Card className="p-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20 animate-fade-up">

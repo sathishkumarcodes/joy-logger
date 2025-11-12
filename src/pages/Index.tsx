@@ -148,7 +148,7 @@ const Index = () => {
           <StreakCounter streak={streak} />
 
           {/* Life Insight */}
-          {entries.length >= 3 && (
+          {entries.length >= 1 && (
             <div className="animate-fade-up" style={{ animationDelay: "0.05s", animationFillMode: "both" }}>
               <LifeInsight userId={user.id} entriesCount={entries.length} />
             </div>
