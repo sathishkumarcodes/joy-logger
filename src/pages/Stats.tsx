@@ -314,8 +314,10 @@ const Stats = () => {
 
           {/* Activity Heatmap */}
           <Card className="p-6">
-            <h3 className="text-xl font-semibold text-foreground mb-4">Activity & Mood Intensity</h3>
-            <p className="text-sm text-muted-foreground mb-4">{getTimeRangeLabel()} - Click any date to view entry</p>
+            <h3 className="text-xl font-semibold text-foreground mb-4">Activity & Mood Calendar</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              {getTimeRangeLabel()} • <span className="text-primary font-medium">Click colored dates to view your entry</span>
+            </p>
             <div className={`grid gap-2 ${timeRange === 7 ? 'grid-cols-7' : 'grid-cols-7'}`}>
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                 <div key={day} className="text-xs text-center text-muted-foreground font-medium mb-1">
@@ -326,45 +328,53 @@ const Stats = () => {
                 const isToday = isSameDay(day.date, new Date());
                 const moodEmoji = day.moodScore === 1 ? "😢" : day.moodScore === 2 ? "😕" : day.moodScore === 3 ? "🙂" : day.moodScore === 4 ? "😌" : day.moodScore === 5 ? "😄" : "";
                 const dateFormatted = format(day.date, 'MM/dd/yyyy');
-                const tooltipText = day.entry 
-                  ? `${dateFormatted}\n${day.entry.entry_text}\nMood: ${moodEmoji}`
-                  : `${dateFormatted}\nNo entry`;
+                const hasEntry = day.hasEntry;
                 
                 return (
                   <button
                     key={`${day.date.toISOString()}-${idx}`}
                     onClick={() => day.entry && setSelectedEntry(day.entry)}
-                    disabled={!day.hasEntry}
-                    className={`aspect-square rounded-lg transition-all hover:scale-110 hover:shadow-lg flex flex-col items-center justify-center gap-0.5 p-1 ${
-                      getMoodIntensityColor(day.moodScore)
-                    } ${isToday ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
-                    ${day.hasEntry ? 'cursor-pointer' : 'cursor-default'}`}
-                    title={tooltipText}
+                    disabled={!hasEntry}
+                    className={`
+                      relative aspect-square rounded-lg transition-all duration-200
+                      flex flex-col items-center justify-center gap-0.5 p-2
+                      ${hasEntry 
+                        ? `${getMoodIntensityColor(day.moodScore)} hover:scale-110 hover:shadow-glow cursor-pointer border-2 border-primary/20 hover:border-primary` 
+                        : 'bg-muted/30 border-2 border-muted cursor-not-allowed opacity-60'
+                      }
+                      ${isToday ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
+                    `}
+                    title={hasEntry ? `${dateFormatted}\n\n"${day.entry?.entry_text}"\n\nMood: ${moodEmoji} Click to view full entry` : `${dateFormatted}\nNo entry this day`}
                   >
-                    <span className={`text-[8px] font-semibold ${day.hasEntry ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    <span className={`text-[9px] font-bold ${hasEntry ? 'text-foreground' : 'text-muted-foreground'}`}>
                       {format(day.date, 'M/d')}
                     </span>
-                    {day.hasEntry && moodEmoji && (
-                      <span className="text-xs leading-none">{moodEmoji}</span>
+                    {hasEntry && moodEmoji && (
+                      <span className="text-base leading-none mt-0.5">{moodEmoji}</span>
+                    )}
+                    {hasEntry && (
+                      <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                     )}
                   </button>
                 );
               })}
             </div>
-            <div className="flex items-center justify-between mt-6">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>Mood Scale:</span>
-                <div className="flex gap-1 items-center">
-                  <div className="w-3 h-3 rounded-sm bg-destructive/40" title="1 - Rough" />
-                  <div className="w-3 h-3 rounded-sm bg-primary/30" title="2 - Meh" />
-                  <div className="w-3 h-3 rounded-sm bg-primary/50" title="3 - Okay" />
-                  <div className="w-3 h-3 rounded-sm bg-primary/70" title="4 - Good" />
-                  <div className="w-3 h-3 rounded-sm bg-primary" title="5 - Great" />
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
+              <div className="flex items-center gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Mood Scale:</span>
+                  <div className="flex gap-1 items-center">
+                    <div className="w-4 h-4 rounded-sm bg-destructive/40 border border-destructive/50" title="1 - Rough 😢" />
+                    <div className="w-4 h-4 rounded-sm bg-primary/30 border border-primary/40" title="2 - Meh 😕" />
+                    <div className="w-4 h-4 rounded-sm bg-primary/50 border border-primary/60" title="3 - Okay 🙂" />
+                    <div className="w-4 h-4 rounded-sm bg-primary/70 border border-primary/80" title="4 - Good 😌" />
+                    <div className="w-4 h-4 rounded-sm bg-primary border border-primary" title="5 - Great 😄" />
+                  </div>
                 </div>
               </div>
-              <div className="text-xs text-muted-foreground">
-                <span className="inline-block w-3 h-3 rounded-sm bg-muted mr-1 align-middle" />
-                No entry
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="w-4 h-4 rounded-sm bg-muted/30 border-2 border-muted" />
+                <span>No entry</span>
               </div>
             </div>
           </Card>
@@ -374,43 +384,46 @@ const Stats = () => {
         <Dialog open={!!selectedEntry} onOpenChange={() => setSelectedEntry(null)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-xl">
-                <Calendar className="w-5 h-5 text-primary" />
-                {selectedEntry && format(parseISO(selectedEntry.entry_date), 'MMMM d, yyyy')}
+              <DialogTitle className="flex items-center gap-2 text-2xl">
+                <Calendar className="w-6 h-6 text-primary" />
+                {selectedEntry && format(parseISO(selectedEntry.entry_date), 'EEEE, MMMM d, yyyy')}
               </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 pt-4">
-              <div>
-                <p className="text-lg text-foreground font-medium">
-                  {selectedEntry?.entry_text}
-                </p>
-              </div>
-
+            <div className="space-y-6 pt-4">
               {selectedEntry?.mood_score && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>Mood:</span>
-                  <span className="text-2xl">
+                <div className="flex items-center gap-3 p-4 bg-primary/10 rounded-lg border border-primary/20">
+                  <span className="text-4xl">
                     {selectedEntry.mood_score === 1 ? "😢" : 
                      selectedEntry.mood_score === 2 ? "😕" : 
                      selectedEntry.mood_score === 3 ? "🙂" : 
                      selectedEntry.mood_score === 4 ? "😌" : "😄"}
                   </span>
-                  <span className="font-medium text-foreground">
-                    {selectedEntry.mood_score === 1 ? "Rough" : 
-                     selectedEntry.mood_score === 2 ? "Meh" : 
-                     selectedEntry.mood_score === 3 ? "Okay" : 
-                     selectedEntry.mood_score === 4 ? "Good" : "Great"}
-                  </span>
+                  <div>
+                    <p className="text-sm text-muted-foreground">How you felt</p>
+                    <p className="text-lg font-semibold text-foreground">
+                      {selectedEntry.mood_score === 1 ? "Rough Day" : 
+                       selectedEntry.mood_score === 2 ? "Meh" : 
+                       selectedEntry.mood_score === 3 ? "Okay" : 
+                       selectedEntry.mood_score === 4 ? "Good Day" : "Great Day!"}
+                    </p>
+                  </div>
                 </div>
               )}
 
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Your Good Thing</p>
+                <p className="text-xl text-foreground leading-relaxed font-medium">
+                  {selectedEntry?.entry_text}
+                </p>
+              </div>
+
               {selectedEntry?.ai_reflection && (
                 <div className="pt-4 border-t border-border">
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-3 p-4 bg-accent/30 rounded-lg">
                     <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground mb-2">AI Reflection</p>
-                      <p className="text-sm text-muted-foreground italic">
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-foreground">AI Reflection</p>
+                      <p className="text-base text-muted-foreground italic leading-relaxed">
                         {selectedEntry.ai_reflection}
                       </p>
                     </div>
