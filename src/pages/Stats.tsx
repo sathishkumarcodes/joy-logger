@@ -309,23 +309,29 @@ const Stats = () => {
             <p className="text-sm text-muted-foreground mb-4">{getTimeRangeLabel()}</p>
             <div className={`grid gap-2 ${timeRange === 7 ? 'grid-cols-7' : 'grid-cols-7'}`}>
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <div key={day} className="text-xs text-center text-muted-foreground font-medium">
+                <div key={day} className="text-xs text-center text-muted-foreground font-medium mb-1">
                   {day}
                 </div>
               ))}
               {heatmapData.map((day, idx) => {
                 const isToday = isSameDay(day.date, new Date());
                 const moodEmoji = day.moodScore === 1 ? "😢" : day.moodScore === 2 ? "😕" : day.moodScore === 3 ? "🙂" : day.moodScore === 4 ? "😌" : day.moodScore === 5 ? "😄" : "";
+                const dateNum = format(day.date, 'd');
                 const moodText = day.moodScore ? `Mood ${day.moodScore}/5 ${moodEmoji}` : 'No entry';
                 return (
                   <div
                     key={`${day.date.toISOString()}-${idx}`}
-                    className={`aspect-square rounded-sm transition-all hover:scale-110 flex items-center justify-center ${
+                    className={`aspect-square rounded-lg transition-all hover:scale-105 hover:shadow-lg flex flex-col items-center justify-center gap-0.5 p-1 ${
                       getMoodIntensityColor(day.moodScore)
                     } ${isToday ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
                     title={`${format(day.date, 'MMM d, yyyy')}: ${moodText}`}
                   >
-                    {isToday && <span className="text-[10px] font-bold text-primary-foreground">T</span>}
+                    <span className={`text-[10px] font-semibold ${day.hasEntry ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {dateNum}
+                    </span>
+                    {day.hasEntry && moodEmoji && (
+                      <span className="text-sm leading-none">{moodEmoji}</span>
+                    )}
                   </div>
                 );
               })}
