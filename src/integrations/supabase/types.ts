@@ -18,29 +18,65 @@ export type Database = {
         Row: {
           ai_reflection: string | null
           created_at: string | null
-          device_id: string
           entry_date: string
           entry_text: string
           id: string
           mood_score: number | null
+          updated_at: string | null
+          user_id: string
         }
         Insert: {
           ai_reflection?: string | null
           created_at?: string | null
-          device_id: string
           entry_date?: string
           entry_text: string
           id?: string
           mood_score?: number | null
+          updated_at?: string | null
+          user_id: string
         }
         Update: {
           ai_reflection?: string | null
           created_at?: string | null
-          device_id?: string
           entry_date?: string
           entry_text?: string
           id?: string
           mood_score?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          ai_enabled: boolean | null
+          created_at: string | null
+          email: string | null
+          id: string
+          reminder_enabled: boolean | null
+          reminder_hour: number | null
+          timezone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          ai_enabled?: boolean | null
+          created_at?: string | null
+          email?: string | null
+          id: string
+          reminder_enabled?: boolean | null
+          reminder_hour?: number | null
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          ai_enabled?: boolean | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          reminder_enabled?: boolean | null
+          reminder_hour?: number | null
+          timezone?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
