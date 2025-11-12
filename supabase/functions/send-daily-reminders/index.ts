@@ -87,19 +87,19 @@ serve(async (req) => {
             
             await sendEmail(
               profile.email,
-              "✨ Time for your daily reflection",
+              "✨ Your daily OneGoodThing reminder",
               `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                   <h2 style="color: #f59e0b;">✨ OneGoodThing</h2>
                   <p>Hi there!</p>
-                  <p>It's time to log today's good thing. Take a moment to reflect on something positive that happened today.</p>
+                  <p>It's time to capture today's one good thing. Take a moment to reflect on something positive that happened today.</p>
                   <p>
                     <a href="${Deno.env.get("SUPABASE_URL") || ""}" 
                        style="background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 20px 0;">
-                      Log Today's Entry
+                      Log Your OneGoodThing
                     </a>
                   </p>
-                  <p style="color: #666; font-size: 14px;">Keep your streak going! 🔥</p>
+                  <p style="color: #666; font-size: 14px;">Keep your joy streak going! 🔥</p>
                 </div>
               `
             );
