@@ -51,7 +51,10 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
 
       if (reflectionError) throw reflectionError;
 
-      // Save to database
+      // Save to database with local date (not UTC)
+      const now = new Date();
+      const localDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      
       const { error: insertError } = await supabase
         .from("journal_entries")
         .insert({
@@ -59,7 +62,7 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
           entry_text: entry,
           ai_reflection: reflectionData.reflection,
           mood_score: reflectionData.moodScore || mood,
-          entry_date: new Date().toISOString().split('T')[0]
+          entry_date: localDate
         });
 
       if (insertError) throw insertError;

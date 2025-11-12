@@ -50,9 +50,6 @@ const Stats = () => {
         .order("entry_date", { ascending: true });
 
       if (error) throw error;
-
-      console.log('Loaded entries:', data);
-      console.log('Number of entries:', data?.length || 0);
       
       setEntries(data || []);
       calculateStats(data || []);
@@ -119,17 +116,9 @@ const Stats = () => {
     const startDate = subDays(today, timeRange - 1);
     const days = eachDayOfInterval({ start: startDate, end: today });
 
-    console.log('Getting heatmap data for date range:', format(startDate, 'yyyy-MM-dd'), 'to', format(today, 'yyyy-MM-dd'));
-    console.log('Total entries available:', entries.length);
-    console.log('Entry dates:', entries.map(e => e.entry_date));
-
     return days.map(day => {
       const dayString = format(day, 'yyyy-MM-dd');
       const entry = entries.find(e => e.entry_date === dayString);
-      
-      if (entry) {
-        console.log('Found entry for', dayString, ':', entry);
-      }
       
       return {
         date: day,
@@ -338,14 +327,11 @@ const Stats = () => {
                 const dateFormatted = format(day.date, 'MM/dd/yyyy');
                 const hasEntry = day.hasEntry;
                 
-                console.log('Heatmap day:', dateFormatted, 'hasEntry:', hasEntry, 'entry:', day.entry);
-                
                 return (
                   <button
                     key={`${day.date.toISOString()}-${idx}`}
                     onClick={(e) => {
                       e.preventDefault();
-                      console.log('Button clicked!', dateFormatted, day.entry);
                       if (day.entry) {
                         setSelectedEntry(day.entry);
                       }

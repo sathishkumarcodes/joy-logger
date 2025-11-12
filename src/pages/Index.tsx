@@ -24,12 +24,13 @@ const Index = () => {
     );
 
     let currentStreak = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     for (let i = 0; i < sortedEntries.length; i++) {
-      const entryDate = new Date(sortedEntries[i].entry_date);
-      entryDate.setHours(0, 0, 0, 0);
+      const entryDateStr = sortedEntries[i].entry_date; // YYYY-MM-DD format
+      const [year, month, day] = entryDateStr.split('-').map(Number);
+      const entryDate = new Date(year, month - 1, day);
 
       const expectedDate = new Date(today);
       expectedDate.setDate(today.getDate() - currentStreak);
@@ -59,8 +60,9 @@ const Index = () => {
 
       setEntries(data || []);
       
-      // Check if there's an entry today
-      const today = new Date().toISOString().split('T')[0];
+      // Check if there's an entry today (using local date, not UTC)
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
       const todayEntry = data?.find(entry => entry.entry_date === today);
       setHasEntryToday(!!todayEntry);
 
