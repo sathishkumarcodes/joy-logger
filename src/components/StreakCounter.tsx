@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Flame } from "lucide-react";
+import { Sun } from "lucide-react";
 import { MilestoneBadge } from "./MilestoneBadge";
 
 interface StreakCounterProps {
@@ -8,14 +8,12 @@ interface StreakCounterProps {
 
 export const StreakCounter = ({ streak }: StreakCounterProps) => {
   return (
-    <Card className="p-6 bg-gradient-to-br from-primary to-primary-glow text-primary-foreground shadow-glow">
-      <div className="flex flex-col items-center gap-3">
-        <div className="flex items-center gap-3">
-          <Flame className="w-8 h-8 animate-pulse" />
-          <div className="text-center">
-            <div className="text-4xl font-bold">{streak}</div>
-            <div className="text-sm opacity-90">Day Streak</div>
-          </div>
+    <Card className="p-8 bg-gradient-to-br from-amber-50/80 to-orange-50/60 border-0 shadow-soft animate-fade-up">
+      <div className="flex flex-col items-center gap-4">
+        <Sun className="w-12 h-12 text-primary animate-float" strokeWidth={2.5} />
+        <div className="text-center space-y-1">
+          <div className="text-5xl font-bold text-foreground">{streak} {streak === 1 ? 'day' : 'days'}</div>
+          <div className="text-lg text-muted-foreground font-medium">Your joy streak</div>
         </div>
         <MilestoneBadge streak={streak} animate={true} />
       </div>

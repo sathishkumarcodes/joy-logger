@@ -68,14 +68,15 @@ export const EntryHistory = ({ entries, onUpdate }: EntryHistoryProps) => {
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-foreground">Your Journey</h2>
+    <div className="space-y-6 animate-fade-up" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
+      <h2 className="text-3xl font-bold text-foreground">Moments You've Saved</h2>
       <ScrollArea className="h-[600px] pr-4">
         <div className="space-y-4">
-          {entries.map((entry) => (
+          {entries.map((entry, index) => (
             <Card
               key={entry.id}
-              className="p-6 bg-card hover:shadow-soft transition-all"
+              className="p-6 bg-card border-0 shadow-soft hover:shadow-glow transition-all hover:scale-[1.01] animate-fade-up"
+              style={{ animationDelay: `${index * 0.05}s`, animationFillMode: "both" }}
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">

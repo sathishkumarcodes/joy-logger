@@ -79,13 +79,13 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
 
   if (hasEntryToday) {
     return (
-      <Card className="p-8 text-center bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
-        <Sparkles className="w-12 h-12 mx-auto mb-4 text-primary" />
-        <h2 className="text-2xl font-semibold text-foreground mb-2">
-          You've journaled today! 🎉
+      <Card className="p-8 text-center bg-card border-0 shadow-soft animate-scale-in">
+        <Sparkles className="w-16 h-16 mx-auto mb-4 text-primary animate-float" strokeWidth={2} />
+        <h2 className="text-2xl font-semibold text-foreground mb-3">
+          You've captured a good thing today
         </h2>
-        <p className="text-muted-foreground">
-          Check back tomorrow for your next reflection
+        <p className="text-muted-foreground text-base">
+          Come back tomorrow to find another moment to appreciate.
         </p>
       </Card>
     );

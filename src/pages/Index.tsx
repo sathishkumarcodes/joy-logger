@@ -101,52 +101,57 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background">
-      <div className="container max-w-4xl mx-auto px-4 py-12">
+      <div className="container max-w-3xl mx-auto px-4 py-8 sm:py-12">
+        {/* Top right action buttons */}
+        <div className="flex justify-end gap-2 mb-8 animate-fade-up">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/stats")}
+            className="hover:bg-card/50 hover:scale-110 transition-all"
+          >
+            <BarChart3 className="w-5 h-5 text-muted-foreground" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/settings")}
+            className="hover:bg-card/50 hover:scale-110 transition-all"
+          >
+            <Settings className="w-5 h-5 text-muted-foreground" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSignOut}
+            className="hover:bg-card/50 hover:scale-110 transition-all"
+          >
+            <LogOut className="w-5 h-5 text-muted-foreground" />
+          </Button>
+        </div>
+
         <div className="space-y-8">
-          {/* Header with actions */}
-          <div className="flex items-center justify-between">
-            <div className="text-center flex-1 space-y-2">
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-                OneGoodThing
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                Find your joy, every day ✨
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => navigate("/stats")}
-              >
-                <BarChart3 className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => navigate("/settings")}
-              >
-                <Settings className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleSignOut}
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
+          {/* Header */}
+          <div className="text-center space-y-3 animate-fade-up">
+            <h1 className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+              OneGoodThing
+            </h1>
+            <p className="text-foreground text-xl font-medium">
+              Find your joy, every day ✨
+            </p>
           </div>
 
           {/* Streak Counter */}
           <StreakCounter streak={streak} />
 
           {/* Journal Prompt */}
-          <JournalPrompt 
-            onEntrySubmitted={fetchEntries}
-            hasEntryToday={hasEntryToday}
-            userId={user.id}
-          />
+          <div className="animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
+            <JournalPrompt 
+              onEntrySubmitted={fetchEntries}
+              hasEntryToday={hasEntryToday}
+              userId={user.id}
+            />
+          </div>
 
           {/* Entry History */}
           <EntryHistory entries={entries} onUpdate={fetchEntries} />
