@@ -77,19 +77,17 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/20 to-background p-4">
       <Card className="p-8 max-w-md w-full space-y-6">
-        <div className="text-center space-y-3">
+        <div className="text-center space-y-4">
           <Sparkles className="w-12 h-12 mx-auto text-primary" />
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
             OneGoodThing
           </h1>
-          <div className="space-y-1">
-            <p className="text-lg font-medium text-foreground">
-              Find a little light in your day ☀️
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Even the smallest moments count — let's capture yours.
-            </p>
-          </div>
+          <p className="text-lg font-medium text-foreground">
+            Find a little light in your day ☀️
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Even the smallest moments count — let's capture yours.
+          </p>
         </div>
 
         <form onSubmit={handleMagicLink} className="space-y-4">
