@@ -57,8 +57,8 @@ const Auth = () => {
   if (emailSent) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/20 to-background p-4">
-        <Card className="p-8 max-w-md w-full text-center space-y-4">
-          <Mail className="w-16 h-16 mx-auto text-primary" />
+        <Card className="p-8 max-w-md w-full text-center space-y-4 animate-scale-in">
+          <Mail className="w-16 h-16 mx-auto text-primary animate-float" />
           <h2 className="text-2xl font-bold text-foreground">Check your email</h2>
           <p className="text-muted-foreground">
             We've sent a magic link to <strong>{email}</strong>
@@ -66,7 +66,7 @@ const Auth = () => {
           <p className="text-sm text-muted-foreground">
             Click the link in your email to sign in
           </p>
-          <Button variant="outline" onClick={() => setEmailSent(false)} className="w-full">
+          <Button variant="outline" onClick={() => setEmailSent(false)} className="w-full hover:scale-[1.02] transition-all">
             Try a different email
           </Button>
         </Card>
@@ -76,9 +76,9 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/20 to-background p-4">
-      <Card className="p-8 max-w-md w-full space-y-6">
+      <Card className="p-8 max-w-md w-full space-y-6 animate-fade-up">
         <div className="text-center space-y-4">
-          <Sparkles className="w-12 h-12 mx-auto text-primary" />
+          <Sparkles className="w-12 h-12 mx-auto text-primary animate-float" />
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
             OneGoodThing
           </h1>
@@ -90,7 +90,7 @@ const Auth = () => {
           </p>
         </div>
 
-        <form onSubmit={handleMagicLink} className="space-y-4">
+        <form onSubmit={handleMagicLink} className="space-y-4 animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Email</label>
             <Input
@@ -99,14 +99,14 @@ const Auth = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
-              className="border-2"
+              className="border-2 transition-all focus:scale-[1.02]"
             />
           </div>
 
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-primary to-primary-glow"
+            className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-glow transition-all hover:scale-[1.02]"
           >
             {isLoading ? (
               <>
@@ -122,7 +122,7 @@ const Auth = () => {
           </Button>
         </form>
 
-        <div className="relative">
+        <div className="relative animate-fade-up" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border" />
           </div>
@@ -134,7 +134,8 @@ const Auth = () => {
         <Button
           onClick={handleGoogleSignIn}
           variant="outline"
-          className="w-full"
+          className="w-full animate-fade-up hover:scale-[1.02] transition-all"
+          style={{ animationDelay: "0.3s", animationFillMode: "both" }}
         >
           <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
             <path
