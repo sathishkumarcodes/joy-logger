@@ -117,10 +117,8 @@ const Stats = () => {
     const days = eachDayOfInterval({ start: startDate, end: today });
 
     return days.map(day => {
-      const entry = entries.find(e => {
-        const entryDate = parseISO(e.entry_date);
-        return isSameDay(entryDate, day);
-      });
+      const dayString = format(day, 'yyyy-MM-dd');
+      const entry = entries.find(e => e.entry_date === dayString);
       return {
         date: day,
         hasEntry: !!entry,
@@ -136,10 +134,8 @@ const Stats = () => {
     
     const chartData = Array.from({ length: daysToShow }, (_, i) => {
       const date = subDays(today, daysToShow - 1 - i);
-      const entry = entries.find(e => {
-        const entryDate = parseISO(e.entry_date);
-        return isSameDay(entryDate, date);
-      });
+      const dateString = format(date, 'yyyy-MM-dd');
+      const entry = entries.find(e => e.entry_date === dateString);
       
       return {
         date: format(date, 'MMM d'),
