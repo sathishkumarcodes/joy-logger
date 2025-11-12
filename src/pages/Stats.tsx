@@ -4,15 +4,22 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Loader2, TrendingUp, Calendar, Zap, Smile } from "lucide-react";
+import { ArrowLeft, Loader2, TrendingUp, Calendar, Zap, Smile, Sparkles } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths, differenceInDays, parseISO, subDays } from "date-fns";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface JournalEntry {
   id: string;
   entry_date: string;
   mood_score: number | null;
   entry_text: string;
+  ai_reflection: string | null;
 }
 
 const Stats = () => {
@@ -24,6 +31,7 @@ const Stats = () => {
   const [longestStreak, setLongestStreak] = useState(0);
   const [totalDays, setTotalDays] = useState(0);
   const [timeRange, setTimeRange] = useState<7 | 30 | 60 | 90>(30);
+  const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -116,7 +124,8 @@ const Stats = () => {
       return {
         date: day,
         hasEntry: !!entry,
-        moodScore: entry?.mood_score || null
+        moodScore: entry?.mood_score || null,
+        entry: entry || null
       };
     });
   };
@@ -306,7 +315,7 @@ const Stats = () => {
           {/* Activity Heatmap */}
           <Card className="p-6">
             <h3 className="text-xl font-semibold text-foreground mb-4">Activity & Mood Intensity</h3>
-            <p className="text-sm text-muted-foreground mb-4">{getTimeRangeLabel()}</p>
+            <p className="text-sm text-muted-foreground mb-4">{getTimeRangeLabel()} - Click any date to view entry</p>
             <div className={`grid gap-2 ${timeRange === 7 ? 'grid-cols-7' : 'grid-cols-7'}`}>
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                 <div key={day} className="text-xs text-center text-muted-foreground font-medium mb-1">
@@ -316,23 +325,29 @@ const Stats = () => {
               {heatmapData.map((day, idx) => {
                 const isToday = isSameDay(day.date, new Date());
                 const moodEmoji = day.moodScore === 1 ? "😢" : day.moodScore === 2 ? "😕" : day.moodScore === 3 ? "🙂" : day.moodScore === 4 ? "😌" : day.moodScore === 5 ? "😄" : "";
-                const dateNum = format(day.date, 'd');
-                const moodText = day.moodScore ? `Mood ${day.moodScore}/5 ${moodEmoji}` : 'No entry';
+                const dateFormatted = format(day.date, 'MM/dd/yyyy');
+                const tooltipText = day.entry 
+                  ? `${dateFormatted}\n${day.entry.entry_text}\nMood: ${moodEmoji}`
+                  : `${dateFormatted}\nNo entry`;
+                
                 return (
-                  <div
+                  <button
                     key={`${day.date.toISOString()}-${idx}`}
-                    className={`aspect-square rounded-lg transition-all hover:scale-105 hover:shadow-lg flex flex-col items-center justify-center gap-0.5 p-1 ${
+                    onClick={() => day.entry && setSelectedEntry(day.entry)}
+                    disabled={!day.hasEntry}
+                    className={`aspect-square rounded-lg transition-all hover:scale-110 hover:shadow-lg flex flex-col items-center justify-center gap-0.5 p-1 ${
                       getMoodIntensityColor(day.moodScore)
-                    } ${isToday ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
-                    title={`${format(day.date, 'MMM d, yyyy')}: ${moodText}`}
+                    } ${isToday ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
+                    ${day.hasEntry ? 'cursor-pointer' : 'cursor-default'}`}
+                    title={tooltipText}
                   >
-                    <span className={`text-[10px] font-semibold ${day.hasEntry ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      {dateNum}
+                    <span className={`text-[8px] font-semibold ${day.hasEntry ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {format(day.date, 'M/d')}
                     </span>
                     {day.hasEntry && moodEmoji && (
-                      <span className="text-sm leading-none">{moodEmoji}</span>
+                      <span className="text-xs leading-none">{moodEmoji}</span>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -354,6 +369,57 @@ const Stats = () => {
             </div>
           </Card>
         </div>
+
+        {/* Entry Detail Dialog */}
+        <Dialog open={!!selectedEntry} onOpenChange={() => setSelectedEntry(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <Calendar className="w-5 h-5 text-primary" />
+                {selectedEntry && format(parseISO(selectedEntry.entry_date), 'MMMM d, yyyy')}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <div>
+                <p className="text-lg text-foreground font-medium">
+                  {selectedEntry?.entry_text}
+                </p>
+              </div>
+
+              {selectedEntry?.mood_score && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Mood:</span>
+                  <span className="text-2xl">
+                    {selectedEntry.mood_score === 1 ? "😢" : 
+                     selectedEntry.mood_score === 2 ? "😕" : 
+                     selectedEntry.mood_score === 3 ? "🙂" : 
+                     selectedEntry.mood_score === 4 ? "😌" : "😄"}
+                  </span>
+                  <span className="font-medium text-foreground">
+                    {selectedEntry.mood_score === 1 ? "Rough" : 
+                     selectedEntry.mood_score === 2 ? "Meh" : 
+                     selectedEntry.mood_score === 3 ? "Okay" : 
+                     selectedEntry.mood_score === 4 ? "Good" : "Great"}
+                  </span>
+                </div>
+              )}
+
+              {selectedEntry?.ai_reflection && (
+                <div className="pt-4 border-t border-border">
+                  <div className="flex items-start gap-3">
+                    <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground mb-2">AI Reflection</p>
+                      <p className="text-sm text-muted-foreground italic">
+                        {selectedEntry.ai_reflection}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
