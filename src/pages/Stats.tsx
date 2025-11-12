@@ -51,6 +51,9 @@ const Stats = () => {
 
       if (error) throw error;
 
+      console.log('Loaded entries:', data);
+      console.log('Number of entries:', data?.length || 0);
+      
       setEntries(data || []);
       calculateStats(data || []);
     } catch (error) {
@@ -116,9 +119,18 @@ const Stats = () => {
     const startDate = subDays(today, timeRange - 1);
     const days = eachDayOfInterval({ start: startDate, end: today });
 
+    console.log('Getting heatmap data for date range:', format(startDate, 'yyyy-MM-dd'), 'to', format(today, 'yyyy-MM-dd'));
+    console.log('Total entries available:', entries.length);
+    console.log('Entry dates:', entries.map(e => e.entry_date));
+
     return days.map(day => {
       const dayString = format(day, 'yyyy-MM-dd');
       const entry = entries.find(e => e.entry_date === dayString);
+      
+      if (entry) {
+        console.log('Found entry for', dayString, ':', entry);
+      }
+      
       return {
         date: day,
         hasEntry: !!entry,
