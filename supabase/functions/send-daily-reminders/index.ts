@@ -11,7 +11,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "DailyGratitude <onboarding@resend.dev>",
+      from: "OneGoodThing <onboarding@resend.dev>",
       to: [to],
       subject,
       html,
@@ -87,14 +87,14 @@ serve(async (req) => {
             
             await sendEmail(
               profile.email,
-              "✨ Time for your daily gratitude reflection",
+              "✨ Time for your daily reflection",
               `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                  <h2 style="color: #f59e0b;">🌅 DailyGratitude</h2>
+                  <h2 style="color: #f59e0b;">✨ OneGoodThing</h2>
                   <p>Hi there!</p>
                   <p>It's time to log today's good thing. Take a moment to reflect on something positive that happened today.</p>
                   <p>
-                    <a href="${Deno.env.get("SUPABASE_URL")?.replace("supabase.co", "lovable.app") || ""}" 
+                    <a href="${Deno.env.get("SUPABASE_URL") || ""}" 
                        style="background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 20px 0;">
                       Log Today's Entry
                     </a>
