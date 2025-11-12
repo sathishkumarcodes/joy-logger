@@ -1,7 +1,27 @@
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Calendar, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, Sparkles, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 interface Entry {
   id: string;
@@ -13,9 +33,30 @@ interface Entry {
 
 interface EntryHistoryProps {
   entries: Entry[];
+  onUpdate: () => void;
 }
 
-export const EntryHistory = ({ entries }: EntryHistoryProps) => {
+export const EntryHistory = ({ entries, onUpdate }: EntryHistoryProps) => {
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("journal_entries")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast.success("Entry deleted");
+      onUpdate();
+    } catch (error: any) {
+      console.error("Error deleting entry:", error);
+      toast.error(error.message || "Failed to delete entry");
+    } finally {
+      setDeleteId(null);
+    }
+  };
   if (entries.length === 0) {
     return (
       <Card className="p-8 text-center bg-muted/30">
@@ -37,9 +78,25 @@ export const EntryHistory = ({ entries }: EntryHistoryProps) => {
               className="p-6 bg-card hover:shadow-soft transition-all"
             >
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="w-4 h-4" />
-                  {format(new Date(entry.entry_date), "MMMM d, yyyy")}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="w-4 h-4" />
+                    {format(new Date(entry.entry_date), "MMMM d, yyyy")}
+                  </div>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setDeleteId(entry.id)}>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 
                 <p className="text-lg text-foreground font-medium">
@@ -61,6 +118,23 @@ export const EntryHistory = ({ entries }: EntryHistoryProps) => {
           ))}
         </div>
       </ScrollArea>
+
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete entry?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your journal entry.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteId && handleDelete(deleteId)}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

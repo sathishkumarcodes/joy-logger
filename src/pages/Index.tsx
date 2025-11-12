@@ -1,24 +1,20 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { JournalPrompt } from "@/components/JournalPrompt";
 import { StreakCounter } from "@/components/StreakCounter";
 import { EntryHistory } from "@/components/EntryHistory";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Loader2, Settings, LogOut } from "lucide-react";
 
 const Index = () => {
+  const { user, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
   const [entries, setEntries] = useState<any[]>([]);
   const [streak, setStreak] = useState(0);
   const [hasEntryToday, setHasEntryToday] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
-  const getDeviceId = () => {
-    let deviceId = localStorage.getItem("journal_device_id");
-    if (!deviceId) {
-      deviceId = crypto.randomUUID();
-      localStorage.setItem("journal_device_id", deviceId);
-    }
-    return deviceId;
-  };
 
   const calculateStreak = (entries: any[]) => {
     if (entries.length === 0) return 0;
@@ -49,13 +45,14 @@ const Index = () => {
   };
 
   const fetchEntries = async () => {
+    if (!user) return;
+    
     setIsLoading(true);
     try {
-      const deviceId = getDeviceId();
       const { data, error } = await supabase
         .from("journal_entries")
         .select("*")
-        .eq("device_id", deviceId)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -78,10 +75,21 @@ const Index = () => {
   };
 
   useEffect(() => {
-    fetchEntries();
-  }, []);
+    if (!authLoading) {
+      if (!user) {
+        navigate("/auth");
+      } else {
+        fetchEntries();
+      }
+    }
+  }, [user, authLoading, navigate]);
 
-  if (isLoading) {
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/20 to-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -89,18 +97,38 @@ const Index = () => {
     );
   }
 
+  if (!user) return null;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background">
       <div className="container max-w-4xl mx-auto px-4 py-12">
         <div className="space-y-8">
-          {/* Header with Streak */}
-          <div className="text-center space-y-4">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-              Daily Gratitude
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              One good thing, every day ✨
-            </p>
+          {/* Header with actions */}
+          <div className="flex items-center justify-between">
+            <div className="text-center flex-1 space-y-2">
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+                DailyGratitude
+              </h1>
+              <p className="text-muted-foreground text-lg">
+                One good thing, every day ✨
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigate("/settings")}
+              >
+                <Settings className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleSignOut}
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Streak Counter */}
@@ -110,10 +138,11 @@ const Index = () => {
           <JournalPrompt 
             onEntrySubmitted={fetchEntries}
             hasEntryToday={hasEntryToday}
+            userId={user.id}
           />
 
           {/* Entry History */}
-          <EntryHistory entries={entries} />
+          <EntryHistory entries={entries} onUpdate={fetchEntries} />
         </div>
       </div>
     </div>

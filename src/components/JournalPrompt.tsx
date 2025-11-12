@@ -5,28 +5,36 @@ import { Card } from "@/components/ui/card";
 import { Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import confetti from "canvas-confetti";
 
 interface JournalPromptProps {
   onEntrySubmitted: () => void;
   hasEntryToday: boolean;
+  userId: string;
 }
 
-export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday }: JournalPromptProps) => {
+export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: JournalPromptProps) => {
   const [entry, setEntry] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const getDeviceId = () => {
-    let deviceId = localStorage.getItem("journal_device_id");
-    if (!deviceId) {
-      deviceId = crypto.randomUUID();
-      localStorage.setItem("journal_device_id", deviceId);
-    }
-    return deviceId;
+  const MAX_CHARS = 240;
+
+  const fireConfetti = () => {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
   };
 
   const handleSubmit = async () => {
     if (!entry.trim()) {
       toast.error("Please write something first!");
+      return;
+    }
+
+    if (entry.length > MAX_CHARS) {
+      toast.error(`Please keep it under ${MAX_CHARS} characters`);
       return;
     }
 
@@ -45,7 +53,7 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday }: JournalPrompt
       const { error: insertError } = await supabase
         .from("journal_entries")
         .insert({
-          device_id: getDeviceId(),
+          user_id: userId,
           entry_text: entry,
           ai_reflection: reflectionData.reflection,
           entry_date: new Date().toISOString().split('T')[0]
@@ -53,6 +61,7 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday }: JournalPrompt
 
       if (insertError) throw insertError;
 
+      fireConfetti();
       toast.success("Entry saved! ✨");
       setEntry("");
       onEntrySubmitted();
@@ -90,13 +99,19 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday }: JournalPrompt
           </p>
         </div>
 
-        <Textarea
-          value={entry}
-          onChange={(e) => setEntry(e.target.value)}
-          placeholder="I'm grateful for..."
-          className="min-h-[120px] text-lg resize-none border-2 focus:border-primary transition-all"
-          disabled={isSubmitting}
-        />
+        <div className="space-y-2">
+          <Textarea
+            value={entry}
+            onChange={(e) => setEntry(e.target.value)}
+            placeholder="I'm grateful for..."
+            className="min-h-[120px] text-lg resize-none border-2 focus:border-primary transition-all"
+            disabled={isSubmitting}
+            maxLength={MAX_CHARS}
+          />
+          <div className="text-right text-sm text-muted-foreground">
+            {entry.length} / {MAX_CHARS}
+          </div>
+        </div>
 
         <Button
           onClick={handleSubmit}
