@@ -4,8 +4,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Loader2, TrendingUp, Calendar, Zap } from "lucide-react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths, differenceInDays, parseISO } from "date-fns";
+import { ArrowLeft, Loader2, TrendingUp, Calendar, Zap, Smile } from "lucide-react";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths, differenceInDays, parseISO, subDays } from "date-fns";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 
 interface JournalEntry {
   id: string;
@@ -118,10 +119,31 @@ const Stats = () => {
     });
   };
 
-  const getMoodSparkline = () => {
-    return entries
-      .slice(-30)
-      .map(e => e.mood_score || 5);
+  const getMoodChartData = () => {
+    // Get last 30 days of data
+    const last30Days = Array.from({ length: 30 }, (_, i) => {
+      const date = subDays(new Date(), 29 - i);
+      const entry = entries.find(e => isSameDay(parseISO(e.entry_date), date));
+      
+      return {
+        date: format(date, 'MMM d'),
+        mood: entry?.mood_score || null,
+        hasEntry: !!entry
+      };
+    });
+    
+    return last30Days;
+  };
+
+  const getMoodIntensityColor = (score: number | null) => {
+    if (!score) return "bg-muted";
+    
+    // Map mood scores (1-5) to color intensities
+    if (score === 1) return "bg-destructive/40";
+    if (score === 2) return "bg-primary/30";
+    if (score === 3) return "bg-primary/50";
+    if (score === 4) return "bg-primary/70";
+    return "bg-primary";
   };
 
   if (authLoading || loading) {
@@ -133,7 +155,10 @@ const Stats = () => {
   }
 
   const heatmapData = getHeatmapData();
-  const moodData = getMoodSparkline();
+  const moodChartData = getMoodChartData();
+  const avgMood = entries.filter(e => e.mood_score).length > 0
+    ? (entries.reduce((sum, e) => sum + (e.mood_score || 0), 0) / entries.filter(e => e.mood_score).length).toFixed(1)
+    : "N/A";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background">
@@ -176,9 +201,71 @@ const Stats = () => {
             </Card>
           </div>
 
-          {/* Heatmap Calendar */}
+          {/* Average Mood */}
+          <Card className="p-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+            <div className="flex items-center gap-3 mb-2">
+              <Smile className="w-5 h-5 text-primary" />
+              <h3 className="text-sm font-medium text-muted-foreground">Average Mood</h3>
+            </div>
+            <p className="text-3xl font-bold text-foreground">{avgMood}</p>
+            <p className="text-sm text-muted-foreground mt-1">out of 5</p>
+          </Card>
+
+          {/* Mood Trend Chart */}
+          {entries.length > 0 && (
+            <Card className="p-6">
+              <h3 className="text-xl font-semibold text-foreground mb-6">Mood Journey (Last 30 Days)</h3>
+              <ResponsiveContainer width="100%" height={200}>
+                <AreaChart data={moodChartData}>
+                  <defs>
+                    <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis 
+                    dataKey="date" 
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={12}
+                    tickLine={false}
+                    interval="preserveStartEnd"
+                  />
+                  <YAxis 
+                    domain={[0, 5]} 
+                    ticks={[1, 2, 3, 4, 5]}
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={12}
+                    tickLine={false}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      padding: '8px 12px'
+                    }}
+                    formatter={(value: any) => value ? [`${value}/5`, 'Mood'] : ['No entry', '']}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="mood" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    fill="url(#moodGradient)"
+                    connectNulls
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                Track your emotional patterns over time
+              </p>
+            </Card>
+          )}
+
+          {/* Activity Heatmap */}
           <Card className="p-6">
-            <h3 className="text-xl font-semibold text-foreground mb-4">Activity Heatmap</h3>
+            <h3 className="text-xl font-semibold text-foreground mb-4">Activity & Mood Intensity</h3>
+            <p className="text-sm text-muted-foreground mb-4">Last 3 months of journaling</p>
             <div className="grid grid-cols-7 gap-2">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                 <div key={day} className="text-xs text-center text-muted-foreground font-medium">
@@ -187,54 +274,35 @@ const Stats = () => {
               ))}
               {heatmapData.map((day, idx) => {
                 const isToday = isSameDay(day.date, new Date());
+                const moodEmoji = day.moodScore === 1 ? "😢" : day.moodScore === 2 ? "😕" : day.moodScore === 3 ? "🙂" : day.moodScore === 4 ? "😌" : day.moodScore === 5 ? "😄" : "";
                 return (
                   <div
                     key={idx}
-                    className={`aspect-square rounded-sm transition-colors ${
-                      day.hasEntry
-                        ? 'bg-primary hover:bg-primary/80'
-                        : 'bg-muted hover:bg-muted/80'
+                    className={`aspect-square rounded-sm transition-all hover:scale-110 ${
+                      getMoodIntensityColor(day.moodScore)
                     } ${isToday ? 'ring-2 ring-primary ring-offset-2' : ''}`}
-                    title={`${format(day.date, 'MMM d')}: ${day.hasEntry ? 'Entry logged' : 'No entry'}`}
+                    title={`${format(day.date, 'MMM d')}: ${day.hasEntry ? `Mood ${day.moodScore}/5 ${moodEmoji}` : 'No entry'}`}
                   />
                 );
               })}
             </div>
-            <div className="flex items-center justify-end gap-2 mt-4 text-xs text-muted-foreground">
-              <span>Less</span>
-              <div className="flex gap-1">
-                <div className="w-3 h-3 rounded-sm bg-muted" />
-                <div className="w-3 h-3 rounded-sm bg-primary/40" />
-                <div className="w-3 h-3 rounded-sm bg-primary/70" />
-                <div className="w-3 h-3 rounded-sm bg-primary" />
+            <div className="flex items-center justify-between mt-6">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>Mood Scale:</span>
+                <div className="flex gap-1 items-center">
+                  <div className="w-3 h-3 rounded-sm bg-destructive/40" title="1 - Rough" />
+                  <div className="w-3 h-3 rounded-sm bg-primary/30" title="2 - Meh" />
+                  <div className="w-3 h-3 rounded-sm bg-primary/50" title="3 - Okay" />
+                  <div className="w-3 h-3 rounded-sm bg-primary/70" title="4 - Good" />
+                  <div className="w-3 h-3 rounded-sm bg-primary" title="5 - Great" />
+                </div>
               </div>
-              <span>More</span>
+              <div className="text-xs text-muted-foreground">
+                <span className="inline-block w-3 h-3 rounded-sm bg-muted mr-1 align-middle" />
+                No entry
+              </div>
             </div>
           </Card>
-
-          {/* Mood Sparkline */}
-          {moodData.length > 0 && (
-            <Card className="p-6">
-              <h3 className="text-xl font-semibold text-foreground mb-4">Mood Trend (Last 30 Days)</h3>
-              <div className="h-32 flex items-end gap-1">
-                {moodData.map((score, idx) => {
-                  const height = (score / 10) * 100;
-                  return (
-                    <div
-                      key={idx}
-                      className="flex-1 bg-primary rounded-t transition-all hover:bg-primary/80"
-                      style={{ height: `${height}%`, minHeight: '4px' }}
-                      title={`Mood: ${score}/10`}
-                    />
-                  );
-                })}
-              </div>
-              <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                <span>30 days ago</span>
-                <span>Today</span>
-              </div>
-            </Card>
-          )}
         </div>
       </div>
     </div>
