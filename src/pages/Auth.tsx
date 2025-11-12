@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Sparkles, Mail, Loader2 } from "lucide-react";
+import FloatingParticles from "@/components/FloatingParticles";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -57,6 +58,7 @@ const Auth = () => {
   if (emailSent) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/20 to-background p-4">
+        <FloatingParticles />
         <Card className="p-8 max-w-md w-full text-center space-y-4 animate-scale-in">
           <Mail className="w-16 h-16 mx-auto text-primary animate-float" />
           <h2 className="text-2xl font-bold text-foreground">Check your email</h2>
@@ -76,6 +78,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/20 to-background p-4">
+      <FloatingParticles />
       <Card className="p-8 max-w-md w-full space-y-6 animate-fade-up">
         <div className="text-center space-y-4">
           <Sparkles className="w-12 h-12 mx-auto text-primary animate-float" />
