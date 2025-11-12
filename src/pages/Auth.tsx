@@ -82,14 +82,9 @@ const Auth = () => {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
             OneGoodThing
           </h1>
-          <div className="space-y-2">
-            <p className="text-muted-foreground font-medium">
-              Loving yourself starts with finding joy in the everyday
-            </p>
-            <p className="text-sm text-muted-foreground/80 max-w-sm mx-auto">
-              No matter how your day went, there's always one good thing. This practice reminds you that joy exists, even in the smallest moments.
-            </p>
-          </div>
+          <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+            No matter how your day went, there's always one good thing worth celebrating ✨
+          </p>
         </div>
 
         <form onSubmit={handleMagicLink} className="space-y-4">
