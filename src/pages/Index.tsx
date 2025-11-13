@@ -4,6 +4,7 @@ import { JournalPrompt } from "@/components/JournalPrompt";
 import { StreakCounter } from "@/components/StreakCounter";
 import { EntryHistory } from "@/components/EntryHistory";
 import { LifeInsight } from "@/components/LifeInsight";
+import { SocialShare } from "@/components/SocialShare";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -146,6 +147,9 @@ const Index = () => {
 
           {/* Streak Counter */}
           <StreakCounter streak={streak} />
+
+          {/* Social Share */}
+          {streak > 0 && <SocialShare streak={streak} />}
 
           {/* Life Insight */}
           {entries.length >= 1 && (
