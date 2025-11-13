@@ -9,7 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, Settings, LogOut, BarChart3 } from "lucide-react";
+import { Loader2, Settings, LogOut, BarChart3, Lightbulb } from "lucide-react";
+import { JourneySummary } from "@/components/JourneySummary";
 
 const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -109,87 +110,67 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background">
       <div className="container max-w-3xl mx-auto px-4 py-8 sm:py-12">
-        {/* Top right action buttons */}
-        <div className="flex justify-end gap-2 mb-8 animate-fade-up">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/stats")}
-                className="hover:bg-card/50 hover:scale-110 transition-all"
-              >
-                <BarChart3 className="w-5 h-5 text-muted-foreground" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>View Stats</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/settings")}
-                className="hover:bg-card/50 hover:scale-110 transition-all"
-              >
-                <Settings className="w-5 h-5 text-muted-foreground" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Settings</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleSignOut}
-                className="hover:bg-card/50 hover:scale-110 transition-all"
-              >
-                <LogOut className="w-5 h-5 text-muted-foreground" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Sign Out</p>
-            </TooltipContent>
-          </Tooltip>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8 animate-fade-up">
+          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+            OneGoodThing
+          </h1>
+          <div className="flex gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/stats")}
+                  className="hover:bg-card/50 hover:scale-110 transition-all"
+                >
+                  <Lightbulb className="w-5 h-5 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Insights</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/stats")}
+                  className="hover:bg-card/50 hover:scale-110 transition-all"
+                >
+                  <BarChart3 className="w-5 h-5 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Stats</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/settings")}
+                  className="hover:bg-card/50 hover:scale-110 transition-all"
+                >
+                  <Settings className="w-5 h-5 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Settings</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
         </div>
 
         <div className="space-y-8">
-          {/* Header */}
-          <div className="text-center space-y-3 animate-fade-up">
-            <h1 className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-              OneGoodThing
-            </h1>
-            <p className="text-foreground text-xl font-medium">
-              Find your joy, every day ✨
-            </p>
-          </div>
 
           {/* Streak Counter */}
           <StreakCounter streak={streak} />
 
-          {/* Social Share */}
-          {todayEntry && (
-            <SocialShare 
-              streak={streak} 
-              todayEntry={todayEntry.entry_text}
-              todayMood={todayEntry.mood_score || 3}
-            />
-          )}
-
-          {/* Life Insight */}
-          {entries.length >= 1 && (
-            <div className="animate-fade-up" style={{ animationDelay: "0.05s", animationFillMode: "both" }}>
-              <LifeInsight userId={user.id} entriesCount={entries.length} />
-            </div>
-          )}
-
-          {/* Journal Prompt */}
-          <div className="animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
+          {/* Primary Action - Journal Prompt */}
+          <div className="animate-fade-up" style={{ animationDelay: "0.05s", animationFillMode: "both" }}>
             <JournalPrompt 
               onEntrySubmitted={fetchEntries}
               hasEntryToday={hasEntryToday}
@@ -197,8 +178,33 @@ const Index = () => {
             />
           </div>
 
-          {/* Entry History */}
+          {/* Today's Insight */}
+          {entries.length >= 1 && (
+            <div className="animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
+              <LifeInsight userId={user.id} entriesCount={entries.length} />
+            </div>
+          )}
+
+          {/* Journey Summary */}
+          {entries.length >= 3 && (
+            <div className="animate-fade-up" style={{ animationDelay: "0.15s", animationFillMode: "both" }}>
+              <JourneySummary totalEntries={entries.length} onViewStats={() => navigate("/stats")} />
+            </div>
+          )}
+
+          {/* Saved Moments - Entry History */}
           <EntryHistory entries={entries} onUpdate={fetchEntries} />
+
+          {/* Social Share - Bottom, subtle */}
+          {todayEntry && (
+            <div className="animate-fade-up" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
+              <SocialShare 
+                streak={streak} 
+                todayEntry={todayEntry.entry_text}
+                todayMood={todayEntry.mood_score || 3}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

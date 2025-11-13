@@ -85,10 +85,10 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
       <Card className="p-8 text-center bg-card border-0 shadow-soft animate-scale-in">
         <Sparkles className="w-16 h-16 mx-auto mb-4 text-primary animate-float" strokeWidth={2} />
         <h2 className="text-2xl font-semibold text-foreground mb-3">
-          You've captured a good thing today
+          You've added today's good thing
         </h2>
         <p className="text-muted-foreground text-base">
-          Come back tomorrow to find another moment to appreciate.
+          Want to add another? Come back anytime ✨
         </p>
       </Card>
     );
