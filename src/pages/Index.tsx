@@ -146,6 +146,21 @@ const Index = () => {
                 <p>Settings</p>
               </TooltipContent>
             </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleSignOut}
+                  className="hover:bg-card/50 hover:scale-110 transition-all"
+                >
+                  <LogOut className="w-5 h-5 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Logout</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
