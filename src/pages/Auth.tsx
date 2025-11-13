@@ -99,10 +99,10 @@ const Auth = () => {
             OneGoodThing
           </h1>
           <p className="text-lg font-medium text-foreground">
-            Save one good moment every day — build a habit of gratitude.
+            Capture one meaningful moment each day.
           </p>
           <p className="text-sm text-muted-foreground">
-            Feel better, reflect deeper, and watch your joy grow over time.
+            Small daily reflections that grow your gratitude over time.
           </p>
         </div>
 
