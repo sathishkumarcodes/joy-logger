@@ -33,30 +33,27 @@ export const SocialShare = ({ streak, todayEntry, todayMood }: SocialShareProps)
 
 
   return (
-    <Card className="p-6 animate-fade-up border-2 border-primary/20 shadow-glow" style={{ animationDelay: "0.05s", animationFillMode: "both" }}>
-      <div className="text-center space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">
-          Share Your Journey 🌟
-        </h3>
+    <Card className="p-4 bg-muted/30 border-muted">
+      <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Spread positivity and inspire others!
+          Share your journey
         </p>
-        <div className="flex justify-center gap-3">
+        <div className="flex gap-2">
           <Button
             onClick={handleFacebookShare}
-            variant="outline"
-            size="icon"
-            className="hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] hover:scale-110 transition-all"
+            variant="ghost"
+            size="sm"
+            className="hover:bg-[#1877F2] hover:text-white transition-all"
           >
-            <Facebook className="w-5 h-5" />
+            <Facebook className="w-4 h-4" />
           </Button>
           <Button
             onClick={handleTwitterShare}
-            variant="outline"
-            size="icon"
-            className="hover:bg-black hover:text-white hover:border-black hover:scale-110 transition-all"
+            variant="ghost"
+            size="sm"
+            className="hover:bg-black hover:text-white transition-all"
           >
-            <Twitter className="w-5 h-5" />
+            <Twitter className="w-4 h-4" />
           </Button>
         </div>
       </div>
