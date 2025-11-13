@@ -20,7 +20,7 @@ const getMoodEmoji = (score: number) => {
 export const SocialShare = ({ streak, todayEntry, todayMood }: SocialShareProps) => {
   const moodEmoji = getMoodEmoji(todayMood);
   const appUrl = window.location.origin;
-  const shareMessage = `Today's OneGoodThing ${moodEmoji}\n\n"${todayEntry}"\n\n🔥 ${streak}-day streak!\n\nStart capturing the one thing that brought you joy today. Join me at ${appUrl} ✨`;
+  const shareMessage = `Today's OneGoodThing ${moodEmoji}\n\n"${todayEntry}"\n\n🔥 ${streak}-day streak!\n\nStart capturing the one thing that brought you joy today. Join me ✨`;
 
   const handleFacebookShare = () => {
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(appUrl)}&quote=${encodeURIComponent(shareMessage)}`;
@@ -33,11 +33,12 @@ export const SocialShare = ({ streak, todayEntry, todayMood }: SocialShareProps)
   };
 
   const handleInstagramShare = () => {
-    toast.info("Copy your streak message and share it on Instagram! 📸", {
-      description: shareMessage,
+    const instagramMessage = `${shareMessage}\n\n${appUrl}`;
+    toast.success("Message copied to clipboard! 📋", {
+      description: "Now paste it into your Instagram post or story",
       duration: 5000,
     });
-    navigator.clipboard.writeText(shareMessage);
+    navigator.clipboard.writeText(instagramMessage);
   };
 
   return (
