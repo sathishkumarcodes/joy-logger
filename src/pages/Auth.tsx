@@ -99,7 +99,7 @@ const Auth = () => {
             OneGoodThing
           </h1>
           <p className="text-lg font-medium text-foreground">
-            Capture one meaningful moment each day.
+            Capture one meaningful moment each day
           </p>
           <p className="text-sm text-muted-foreground">
             Small daily reflections that grow your gratitude over time
