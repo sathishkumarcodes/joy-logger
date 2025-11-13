@@ -102,7 +102,7 @@ const Auth = () => {
             Capture one meaningful moment each day.
           </p>
           <p className="text-sm text-muted-foreground">
-            Small daily reflections that grow your gratitude over time.
+            Small daily reflections that grow your gratitude over time
           </p>
         </div>
 
