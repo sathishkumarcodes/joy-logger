@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, Settings, LogOut, BarChart3, Lightbulb } from "lucide-react";
+import { Loader2, Settings, LogOut, BarChart3 } from "lucide-react";
 import { JourneySummary } from "@/components/JourneySummary";
 
 const Index = () => {
@@ -116,21 +116,6 @@ const Index = () => {
             OneGoodThing
           </h1>
           <div className="flex gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate("/stats")}
-                  className="hover:bg-card/50 hover:scale-110 transition-all"
-                >
-                  <Lightbulb className="w-5 h-5 text-muted-foreground" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Insights</p>
-              </TooltipContent>
-            </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
