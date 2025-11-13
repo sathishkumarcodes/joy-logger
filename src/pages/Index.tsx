@@ -8,6 +8,7 @@ import { SocialShare } from "@/components/SocialShare";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Loader2, Settings, LogOut, BarChart3 } from "lucide-react";
 
 const Index = () => {
@@ -110,30 +111,51 @@ const Index = () => {
       <div className="container max-w-3xl mx-auto px-4 py-8 sm:py-12">
         {/* Top right action buttons */}
         <div className="flex justify-end gap-2 mb-8 animate-fade-up">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/stats")}
-            className="hover:bg-card/50 hover:scale-110 transition-all"
-          >
-            <BarChart3 className="w-5 h-5 text-muted-foreground" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/settings")}
-            className="hover:bg-card/50 hover:scale-110 transition-all"
-          >
-            <Settings className="w-5 h-5 text-muted-foreground" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            className="hover:bg-card/50 hover:scale-110 transition-all"
-          >
-            <LogOut className="w-5 h-5 text-muted-foreground" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/stats")}
+                className="hover:bg-card/50 hover:scale-110 transition-all"
+              >
+                <BarChart3 className="w-5 h-5 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>View Stats</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/settings")}
+                className="hover:bg-card/50 hover:scale-110 transition-all"
+              >
+                <Settings className="w-5 h-5 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Settings</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSignOut}
+                className="hover:bg-card/50 hover:scale-110 transition-all"
+              >
+                <LogOut className="w-5 h-5 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Sign Out</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         <div className="space-y-8">
