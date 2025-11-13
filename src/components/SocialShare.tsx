@@ -19,8 +19,8 @@ const getMoodEmoji = (score: number) => {
 
 export const SocialShare = ({ streak, todayEntry, todayMood }: SocialShareProps) => {
   const moodEmoji = getMoodEmoji(todayMood);
-  const shareMessage = `Today's OneGoodThing ${moodEmoji}\n\n"${todayEntry}"\n\n🔥 ${streak}-day streak! Finding joy in everyday moments ✨`;
   const appUrl = window.location.origin;
+  const shareMessage = `Today's OneGoodThing ${moodEmoji}\n\n"${todayEntry}"\n\n🔥 ${streak}-day streak! Finding joy in everyday moments ✨\n\nJoin me: ${appUrl}`;
 
   const handleFacebookShare = () => {
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(appUrl)}&quote=${encodeURIComponent(shareMessage)}`;
