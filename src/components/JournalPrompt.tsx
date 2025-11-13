@@ -84,11 +84,11 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
     return (
       <Card className="p-8 text-center bg-card border-0 shadow-soft animate-scale-in">
         <Sparkles className="w-16 h-16 mx-auto mb-4 text-primary animate-float" strokeWidth={2} />
-        <p className="text-lg text-foreground mb-2">
-          Noticing even one good thing builds a stronger, happier mindset over time. Great job.
-        </p>
-        <p className="text-lg text-foreground">
-          Come back tomorrow for the next one ✨
+        <h2 className="text-2xl font-semibold text-foreground mb-3">
+          Today's moment is saved
+        </h2>
+        <p className="text-muted-foreground text-base">
+          Noticing even one good thing builds a stronger, happier mindset over time. Come back tomorrow for the next one ✨
         </p>
       </Card>
     );
