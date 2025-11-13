@@ -16,6 +16,7 @@ const Index = () => {
   const [entries, setEntries] = useState<any[]>([]);
   const [streak, setStreak] = useState(0);
   const [hasEntryToday, setHasEntryToday] = useState(false);
+  const [todayEntry, setTodayEntry] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const calculateStreak = (entries: any[]) => {
@@ -65,8 +66,9 @@ const Index = () => {
       // Check if there's an entry today (using local date, not UTC)
       const now = new Date();
       const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-      const todayEntry = data?.find(entry => entry.entry_date === today);
-      setHasEntryToday(!!todayEntry);
+      const todayEntryData = data?.find(entry => entry.entry_date === today);
+      setHasEntryToday(!!todayEntryData);
+      setTodayEntry(todayEntryData || null);
 
       // Calculate streak
       const currentStreak = calculateStreak(data || []);
@@ -149,7 +151,13 @@ const Index = () => {
           <StreakCounter streak={streak} />
 
           {/* Social Share */}
-          {streak > 0 && <SocialShare streak={streak} />}
+          {todayEntry && (
+            <SocialShare 
+              streak={streak} 
+              todayEntry={todayEntry.entry_text}
+              todayMood={todayEntry.mood_score || 3}
+            />
+          )}
 
           {/* Life Insight */}
           {entries.length >= 1 && (

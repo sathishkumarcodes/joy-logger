@@ -5,10 +5,21 @@ import { toast } from "sonner";
 
 interface SocialShareProps {
   streak: number;
+  todayEntry: string;
+  todayMood: number;
 }
 
-export const SocialShare = ({ streak }: SocialShareProps) => {
-  const shareMessage = `I'm on a ${streak}-day streak with OneGoodThing! 🔥✨ Finding joy in everyday moments. Join me!`;
+const getMoodEmoji = (score: number) => {
+  if (score >= 5) return "😊";
+  if (score >= 4) return "🙂";
+  if (score >= 3) return "😐";
+  if (score >= 2) return "😕";
+  return "😔";
+};
+
+export const SocialShare = ({ streak, todayEntry, todayMood }: SocialShareProps) => {
+  const moodEmoji = getMoodEmoji(todayMood);
+  const shareMessage = `Today's OneGoodThing ${moodEmoji}\n\n"${todayEntry}"\n\n🔥 ${streak}-day streak! Finding joy in everyday moments ✨`;
   const appUrl = window.location.origin;
 
   const handleFacebookShare = () => {
