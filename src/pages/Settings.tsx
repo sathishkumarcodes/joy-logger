@@ -44,20 +44,32 @@ const Settings = () => {
 
   const loadProfile = async () => {
     try {
-      const { data, error } = await supabase
+      // Load profile
+      const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user?.id)
         .single();
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
-      if (data) {
-        setEmail(data.email || user?.email || "");
-        setTimezone(data.timezone || "UTC");
-        setReminderHour(data.reminder_hour || 20);
-        setReminderEnabled(data.reminder_enabled ?? true);
-        setAiEnabled(data.ai_enabled ?? true);
+      // Load preferences
+      const { data: prefsData } = await supabase
+        .from("user_preferences")
+        .select("*")
+        .eq("user_id", user?.id)
+        .single();
+
+      if (profileData) {
+        setEmail(profileData.email || user?.email || "");
+        setTimezone(prefsData?.timezone || "UTC");
+        setReminderHour(
+          prefsData?.reminder_time 
+            ? parseInt(prefsData.reminder_time.split(':')[0]) 
+            : 19
+        );
+        setReminderEnabled(prefsData?.reminder_enabled ?? false);
+        setAiEnabled(profileData.ai_enabled ?? true);
       }
     } catch (error) {
       console.error("Error loading profile:", error);
@@ -69,19 +81,34 @@ const Settings = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase
+      // Update AI preferences in profiles
+      const { error: profileError } = await supabase
         .from("profiles")
         .update({
-          timezone,
-          reminder_hour: reminderHour,
-          reminder_enabled: reminderEnabled,
           ai_enabled: aiEnabled,
         })
         .eq("id", user?.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
-      toast.success("Settings saved!");
+      // Upsert reminder preferences
+      const reminderTime = `${String(reminderHour).padStart(2, '0')}:00:00`;
+      const { error: prefsError } = await supabase
+        .from("user_preferences")
+        .upsert({
+          user_id: user?.id,
+          reminder_enabled: reminderEnabled,
+          reminder_time: reminderTime,
+          timezone: timezone,
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (prefsError) throw prefsError;
+
+      toast.success("Settings saved! You'll receive daily reminders at your chosen time.", {
+        duration: 4000,
+      });
     } catch (error: any) {
       console.error("Error saving settings:", error);
       toast.error(error.message || "Failed to save settings");
