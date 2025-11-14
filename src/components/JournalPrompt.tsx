@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { MoodSelector } from "./MoodSelector";
 import { TagSelector } from "./TagSelector";
-import EntryCelebration from "./EntryCelebration";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
 
 interface JournalPromptProps {
@@ -22,7 +21,6 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
   const [mood, setMood] = useState<number | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   
@@ -171,11 +169,11 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
 
       if (insertError) throw insertError;
 
-      // Trigger celebration
-      setShowCelebration(true);
+      // Trigger confetti
       fireConfetti();
+      toast.success("Entry saved! ✨");
       
-      // Delayed form reset and callback to let celebration play
+      // Delayed form reset and callback
       setTimeout(() => {
         setEntry("");
         setMood(null);
@@ -183,7 +181,7 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
         setSelectedPhoto(null);
         setPhotoPreview(null);
         onEntrySubmitted();
-      }, 3500);
+      }, 1000);
     } catch (error: any) {
       console.error("Error submitting entry:", error);
       toast.error(error.message || "Failed to save entry");
@@ -204,11 +202,7 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
   }
 
   return (
-    <>
-      {showCelebration && (
-        <EntryCelebration onComplete={() => setShowCelebration(false)} />
-      )}
-      <Card className="p-8 bg-gradient-to-br from-background to-accent/30 shadow-soft">
+    <Card className="p-8 bg-gradient-to-br from-background to-accent/30 shadow-soft">
         <div className="space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-foreground">
@@ -336,6 +330,5 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
         </Button>
       </div>
     </Card>
-    </>
   );
 };
