@@ -55,20 +55,20 @@ const Settings = () => {
 
       // Load preferences
       const { data: prefsData } = await supabase
-        .from("user_preferences")
+        .from("user_preferences" as any)
         .select("*")
         .eq("user_id", user?.id)
-        .single();
+        .maybeSingle();
 
       if (profileData) {
         setEmail(profileData.email || user?.email || "");
-        setTimezone(prefsData?.timezone || "UTC");
+        setTimezone((prefsData as any)?.timezone || "UTC");
         setReminderHour(
-          prefsData?.reminder_time 
-            ? parseInt(prefsData.reminder_time.split(':')[0]) 
+          (prefsData as any)?.reminder_time 
+            ? parseInt((prefsData as any).reminder_time.split(':')[0]) 
             : 19
         );
-        setReminderEnabled(prefsData?.reminder_enabled ?? false);
+        setReminderEnabled((prefsData as any)?.reminder_enabled ?? false);
         setAiEnabled(profileData.ai_enabled ?? true);
       }
     } catch (error) {
@@ -94,7 +94,7 @@ const Settings = () => {
       // Upsert reminder preferences
       const reminderTime = `${String(reminderHour).padStart(2, '0')}:00:00`;
       const { error: prefsError } = await supabase
-        .from("user_preferences")
+        .from("user_preferences" as any)
         .upsert({
           user_id: user?.id,
           reminder_enabled: reminderEnabled,
