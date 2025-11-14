@@ -13,7 +13,8 @@ export const StreakCounter = ({ streak }: StreakCounterProps) => {
         <Sun className="w-12 h-12 text-primary animate-float" strokeWidth={2.5} />
         <div className="text-center space-y-1">
           <div className="text-5xl font-bold text-foreground">{streak} {streak === 1 ? 'day' : 'days'}</div>
-          <div className="text-lg text-muted-foreground font-medium">Your joy streak</div>
+          <div className="text-lg text-muted-foreground font-medium">Your daily joy streak</div>
+          <div className="text-sm text-muted-foreground/80">You're building a powerful habit.</div>
         </div>
         <MilestoneBadge streak={streak} animate={true} />
       </div>
