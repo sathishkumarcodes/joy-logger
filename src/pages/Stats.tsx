@@ -22,6 +22,7 @@ interface JournalEntry {
   entry_text: string;
   ai_reflection: string | null;
   tags?: string[] | null;
+  photo_url?: string | null;
 }
 
 const Stats = () => {
@@ -426,6 +427,14 @@ const Stats = () => {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-6 pt-4">
+              {selectedEntry?.photo_url && (
+                <img 
+                  src={selectedEntry.photo_url} 
+                  alt="Journal moment" 
+                  className="w-full h-64 object-cover rounded-lg"
+                />
+              )}
+              
               {selectedEntry?.mood_score && (
                 <div className="flex items-center gap-3 p-4 bg-primary/10 rounded-lg border border-primary/20">
                   <span className="text-4xl">

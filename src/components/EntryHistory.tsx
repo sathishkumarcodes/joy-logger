@@ -31,6 +31,7 @@ interface Entry {
   ai_reflection: string | null;
   created_at: string;
   tags: string[] | null;
+  photo_url: string | null;
 }
 
 interface EntryHistoryProps {
@@ -101,6 +102,14 @@ export const EntryHistory = ({ entries, onUpdate }: EntryHistoryProps) => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
+                
+                {entry.photo_url && (
+                  <img 
+                    src={entry.photo_url} 
+                    alt="Journal moment" 
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                )}
                 
                 <p className="text-lg text-foreground font-medium">
                   {entry.entry_text}
