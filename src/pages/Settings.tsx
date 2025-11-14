@@ -215,9 +215,9 @@ const Settings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Email Reminders</Label>
+                  <Label>Daily Reminders</Label>
                   <p className="text-sm text-muted-foreground">
-                    Get daily reminder emails
+                    Don't forget to save today's good thing ✨
                   </p>
                 </div>
                 <Switch checked={reminderEnabled} onCheckedChange={setReminderEnabled} />

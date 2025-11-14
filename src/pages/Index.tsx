@@ -111,7 +111,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background">
       <div className="container max-w-3xl mx-auto px-4 py-8 sm:py-12">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 animate-fade-up">
+        <div className="flex items-center justify-between mb-10 animate-fade-up">
           <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
             OneGoodThing
           </h1>
@@ -164,7 +164,7 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-10">
 
           {/* Streak Counter */}
           <StreakCounter streak={streak} />
@@ -195,7 +195,7 @@ const Index = () => {
           {/* Saved Moments - Entry History */}
           <EntryHistory entries={entries} onUpdate={fetchEntries} />
 
-          {/* Social Share - Bottom, subtle */}
+          {/* Social Share - Bottom */}
           {todayEntry && (
             <div className="animate-fade-up" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
               <SocialShare 

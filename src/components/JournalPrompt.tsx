@@ -68,7 +68,9 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
       if (insertError) throw insertError;
 
       fireConfetti();
-      toast.success("Entry saved! ✨");
+      toast.success("Beautiful. Today's moment is saved. These little things become big memories.", {
+        duration: 4000,
+      });
       setEntry("");
       setMood(null);
       onEntrySubmitted();
@@ -84,11 +86,8 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
     return (
       <Card className="p-8 text-center bg-card border-0 shadow-soft animate-scale-in">
         <Sparkles className="w-16 h-16 mx-auto mb-4 text-primary animate-float" strokeWidth={2} />
-        <h2 className="text-2xl font-semibold text-foreground mb-3">
-          Today's moment is saved
-        </h2>
-        <p className="text-muted-foreground text-base">
-          Noticing even one good thing builds a stronger, happier mindset over time. Come back tomorrow for the next one ✨
+        <p className="text-muted-foreground text-lg leading-relaxed">
+          You've captured today's good thing — a single moment a day makes a real difference. Come back tomorrow for the next one ✨
         </p>
       </Card>
     );
@@ -99,10 +98,10 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
       <div className="space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-foreground">
-            What's one good thing that happened today?
+            Add Today's Good Thing
           </h1>
           <p className="text-muted-foreground">
-            Take a moment to reflect on something positive
+            One small moment can shift your whole day.
           </p>
         </div>
 
