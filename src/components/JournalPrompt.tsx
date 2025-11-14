@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { MoodSelector } from "./MoodSelector";
+import { TagSelector } from "./TagSelector";
 
 interface JournalPromptProps {
   onEntrySubmitted: () => void;
@@ -17,6 +18,7 @@ interface JournalPromptProps {
 export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: JournalPromptProps) => {
   const [entry, setEntry] = useState("");
   const [mood, setMood] = useState<number | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const MAX_CHARS = 240;
@@ -62,7 +64,8 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
           entry_text: entry,
           ai_reflection: reflectionData.reflection,
           mood_score: reflectionData.moodScore || mood,
-          entry_date: localDate
+          entry_date: localDate,
+          tags: tags.length > 0 ? tags : null
         });
 
       if (insertError) throw insertError;
@@ -73,6 +76,7 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
       });
       setEntry("");
       setMood(null);
+      setTags([]);
       onEntrySubmitted();
     } catch (error: any) {
       console.error("Error submitting entry:", error);
@@ -110,6 +114,8 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
           onChange={setMood} 
           disabled={isSubmitting}
         />
+
+        <TagSelector selectedTags={tags} onTagsChange={setTags} />
 
         <div className="space-y-2">
           <Textarea

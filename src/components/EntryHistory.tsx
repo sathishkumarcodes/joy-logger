@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Calendar, Sparkles, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,6 +30,7 @@ interface Entry {
   entry_text: string;
   ai_reflection: string | null;
   created_at: string;
+  tags: string[] | null;
 }
 
 interface EntryHistoryProps {
@@ -103,6 +105,16 @@ export const EntryHistory = ({ entries, onUpdate }: EntryHistoryProps) => {
                 <p className="text-lg text-foreground font-medium">
                   {entry.entry_text}
                 </p>
+
+                {entry.tags && entry.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {entry.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
 
                 {entry.ai_reflection && (
                   <div className="mt-4 pt-4 border-t border-border">
