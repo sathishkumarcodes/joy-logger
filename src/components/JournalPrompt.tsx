@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, Mic, MicOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { MoodSelector } from "./MoodSelector";
 import { TagSelector } from "./TagSelector";
 import EntryCelebration from "./EntryCelebration";
+import { useVoiceInput } from "@/hooks/useVoiceInput";
 
 interface JournalPromptProps {
   onEntrySubmitted: () => void;
@@ -22,8 +23,48 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
   const [tags, setTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  
+  const {
+    isListening,
+    isProcessing,
+    transcript,
+    isSupported: isVoiceSupported,
+    permissionDenied,
+    error: voiceError,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useVoiceInput();
+
+  // Update entry when transcript changes
+  useEffect(() => {
+    if (transcript) {
+      setEntry(prev => {
+        const newText = prev ? `${prev} ${transcript}` : transcript;
+        return newText;
+      });
+      resetTranscript();
+    }
+  }, [transcript, resetTranscript]);
 
   const MAX_CHARS = 240;
+
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      stopListening();
+      if (transcript) {
+        toast.success("Added from voice ✨");
+      }
+    } else {
+      startListening();
+    }
+  };
+
+  useEffect(() => {
+    if (voiceError) {
+      toast.error(voiceError);
+    }
+  }, [voiceError]);
 
   const fireConfetti = () => {
     confetti({
@@ -127,16 +168,56 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
         <TagSelector selectedTags={tags} onTagsChange={setTags} />
 
         <div className="space-y-2">
-          <Textarea
-            value={entry}
-            onChange={(e) => setEntry(e.target.value)}
-            placeholder="I'm grateful for..."
-            className="min-h-[120px] text-lg resize-none border-2 focus:border-primary transition-all"
-            disabled={isSubmitting}
-            maxLength={MAX_CHARS}
-          />
-          <div className="text-right text-sm text-muted-foreground">
-            {entry.length} / {MAX_CHARS}
+          <div className="relative">
+            <Textarea
+              value={entry}
+              onChange={(e) => setEntry(e.target.value)}
+              placeholder="What brought you joy today? A perfect cup of coffee, a kind word, a moment of peace..."
+              className="min-h-[120px] resize-none pr-12"
+              disabled={isSubmitting || isListening}
+              maxLength={MAX_CHARS}
+            />
+            
+            {/* Voice Input Button */}
+            {isVoiceSupported && !permissionDenied && (
+              <button
+                type="button"
+                onClick={toggleVoiceInput}
+                disabled={isSubmitting || isProcessing}
+                className={`absolute right-3 bottom-3 p-2.5 rounded-full transition-all ${
+                  isListening
+                    ? 'bg-primary text-primary-foreground animate-glow-pulse'
+                    : 'bg-muted hover:bg-muted-foreground/20 text-muted-foreground'
+                } ${isProcessing ? 'opacity-50' : ''}`}
+                aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
+              >
+                {isProcessing ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : isListening ? (
+                  <Mic className="w-5 h-5" />
+                ) : (
+                  <MicOff className="w-5 h-5" />
+                )}
+              </button>
+            )}
+          </div>
+          
+          <div className="flex justify-between items-center text-sm">
+            <div>
+              {isListening && (
+                <span className="text-primary font-medium animate-pulse">
+                  🎤 Listening...
+                </span>
+              )}
+              {isProcessing && (
+                <span className="text-primary font-medium">
+                  ✨ Processing...
+                </span>
+              )}
+            </div>
+            <span className={entry.length > MAX_CHARS - 20 ? "text-destructive" : "text-muted-foreground"}>
+              {entry.length}/{MAX_CHARS}
+            </span>
           </div>
         </div>
 
