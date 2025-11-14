@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { MoodSelector } from "./MoodSelector";
 import { TagSelector } from "./TagSelector";
+import EntryCelebration from "./EntryCelebration";
 
 interface JournalPromptProps {
   onEntrySubmitted: () => void;
@@ -20,6 +21,7 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
   const [mood, setMood] = useState<number | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const MAX_CHARS = 240;
 
@@ -70,14 +72,17 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
 
       if (insertError) throw insertError;
 
+      // Trigger celebration
+      setShowCelebration(true);
       fireConfetti();
-      toast.success("Beautiful. Today's moment is saved. These little things become big memories.", {
-        duration: 4000,
-      });
-      setEntry("");
-      setMood(null);
-      setTags([]);
-      onEntrySubmitted();
+      
+      // Delayed form reset and callback to let celebration play
+      setTimeout(() => {
+        setEntry("");
+        setMood(null);
+        setTags([]);
+        onEntrySubmitted();
+      }, 3500);
     } catch (error: any) {
       console.error("Error submitting entry:", error);
       toast.error(error.message || "Failed to save entry");
@@ -98,8 +103,12 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
   }
 
   return (
-    <Card className="p-8 bg-gradient-to-br from-background to-accent/30 shadow-soft">
-      <div className="space-y-6">
+    <>
+      {showCelebration && (
+        <EntryCelebration onComplete={() => setShowCelebration(false)} />
+      )}
+      <Card className="p-8 bg-gradient-to-br from-background to-accent/30 shadow-soft">
+        <div className="space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-foreground">
             Add Today's Good Thing
@@ -150,5 +159,6 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
         </Button>
       </div>
     </Card>
+    </>
   );
 };
