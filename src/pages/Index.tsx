@@ -4,12 +4,13 @@ import { JournalPrompt } from "@/components/JournalPrompt";
 import { StreakCounter } from "@/components/StreakCounter";
 import { EntryHistory } from "@/components/EntryHistory";
 import { LifeInsight } from "@/components/LifeInsight";
+import { MemoryResurfacing } from "@/components/MemoryResurfacing";
 import { SocialShare } from "@/components/SocialShare";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, Settings, LogOut, BarChart3 } from "lucide-react";
+import { Loader2, Settings, LogOut, BarChart3, Calendar, Sparkles } from "lucide-react";
 import { JourneySummary } from "@/components/JourneySummary";
 
 const Index = () => {
@@ -121,6 +122,36 @@ const Index = () => {
                 <Button
                   variant="ghost"
                   size="icon"
+                  onClick={() => navigate("/timeline")}
+                  className="hover:bg-card/50 hover:scale-110 transition-all"
+                >
+                  <Calendar className="w-5 h-5 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Timeline</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/insights")}
+                  className="hover:bg-card/50 hover:scale-110 transition-all"
+                >
+                  <Sparkles className="w-5 h-5 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Insights</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => navigate("/stats")}
                   className="hover:bg-card/50 hover:scale-110 transition-all"
                 >
@@ -182,6 +213,13 @@ const Index = () => {
           {entries.length >= 1 && (
             <div className="animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
               <LifeInsight userId={user.id} entriesCount={entries.length} />
+            </div>
+          )}
+
+          {/* Memory Resurfacing */}
+          {entries.length >= 5 && (
+            <div className="animate-fade-up" style={{ animationDelay: "0.12s", animationFillMode: "both" }}>
+              <MemoryResurfacing userId={user.id} />
             </div>
           )}
 

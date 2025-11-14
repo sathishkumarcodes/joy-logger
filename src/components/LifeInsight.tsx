@@ -21,7 +21,7 @@ export const LifeInsight = ({ userId, entriesCount }: LifeInsightProps) => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-life-insight', {
-        body: { userId }
+        body: { userId, includeWeeklyTrend: true }
       });
 
       if (error) throw error;
@@ -66,7 +66,10 @@ export const LifeInsight = ({ userId, entriesCount }: LifeInsightProps) => {
       <div className="flex items-start justify-between gap-4 mb-3">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
-          <h3 className="text-lg font-semibold text-foreground">Your Journey</h3>
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Your Journey</h3>
+            <p className="text-xs text-muted-foreground">Based on your last 7 days</p>
+          </div>
         </div>
         <Button
           variant="ghost"

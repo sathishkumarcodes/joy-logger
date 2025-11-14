@@ -21,7 +21,7 @@ interface JournalEntry {
   mood_score: number | null;
   entry_text: string;
   ai_reflection: string | null;
-  tags: string[] | null;
+  tags?: string[] | null;
 }
 
 const Stats = () => {
