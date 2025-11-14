@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Loader2, TrendingUp, Calendar, Zap, Smile, Sparkles } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths, differenceInDays, parseISO, subDays } from "date-fns";
@@ -20,6 +21,7 @@ interface JournalEntry {
   mood_score: number | null;
   entry_text: string;
   ai_reflection: string | null;
+  tags: string[] | null;
 }
 
 const Stats = () => {
@@ -450,6 +452,19 @@ const Stats = () => {
                   {selectedEntry?.entry_text}
                 </p>
               </div>
+
+              {selectedEntry?.tags && selectedEntry.tags.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Tags</p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedEntry.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {selectedEntry?.ai_reflection && (
                 <div className="pt-4 border-t border-border">
