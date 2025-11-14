@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Sparkles, Mic, MicOff } from "lucide-react";
+import { Loader2, Sparkles, Mic, MicOff, Image, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -23,6 +23,8 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
   const [tags, setTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   
   const {
     isListening,
@@ -66,6 +68,37 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
     }
   }, [voiceError]);
 
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setSelectedPhoto(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhotoPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removePhoto = () => {
+    setSelectedPhoto(null);
+    setPhotoPreview(null);
+  };
+
   const fireConfetti = () => {
     confetti({
       particleCount: 100,
@@ -88,6 +121,30 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
     setIsSubmitting(true);
 
     try {
+      let photoUrl = null;
+
+      // Upload photo if selected
+      if (selectedPhoto) {
+        const fileExt = selectedPhoto.name.split('.').pop();
+        const fileName = `${userId}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError, data } = await supabase.storage
+          .from('journal-photos')
+          .upload(fileName, selectedPhoto, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('journal-photos')
+          .getPublicUrl(fileName);
+        
+        photoUrl = urlData.publicUrl;
+      }
+
       // Generate AI reflection (and mood if not provided)
       const { data: reflectionData, error: reflectionError } = await supabase.functions.invoke(
         "generate-reflection",
@@ -108,7 +165,8 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
           ai_reflection: reflectionData.reflection,
           mood_score: reflectionData.moodScore || mood,
           entry_date: localDate,
-          tags: tags.length > 0 ? tags : null
+          tags: tags.length > 0 ? tags : null,
+          photo_url: photoUrl
         });
 
       if (insertError) throw insertError;
@@ -122,6 +180,8 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
         setEntry("");
         setMood(null);
         setTags([]);
+        setSelectedPhoto(null);
+        setPhotoPreview(null);
         onEntrySubmitted();
       }, 3500);
     } catch (error: any) {
@@ -219,6 +279,42 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
               {entry.length}/{MAX_CHARS}
             </span>
           </div>
+        </div>
+
+        {/* Photo Upload Section */}
+        <div className="space-y-3">
+          {photoPreview ? (
+            <div className="relative rounded-lg overflow-hidden">
+              <img 
+                src={photoPreview} 
+                alt="Journal photo preview" 
+                className="w-full h-48 object-cover rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={removePhoto}
+                disabled={isSubmitting}
+                className="absolute top-2 right-2 p-2 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
+                aria-label="Remove photo"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary hover:bg-accent/50 transition-colors">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoSelect}
+                disabled={isSubmitting}
+                className="hidden"
+              />
+              <Image className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                Add a photo (optional)
+              </span>
+            </label>
+          )}
         </div>
 
         <Button

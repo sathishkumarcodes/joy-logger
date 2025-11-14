@@ -15,6 +15,7 @@ interface JournalEntry {
   mood_score: number | null;
   entry_text: string;
   tags?: string[] | null;
+  photo_url?: string | null;
 }
 
 const Insights = () => {
