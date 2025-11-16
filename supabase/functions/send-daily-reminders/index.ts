@@ -12,9 +12,10 @@ const corsHeaders = {
 };
 
 interface UserToRemind {
-  user_id: string;
+  id: string;
   email: string;
-  reminder_time: string;
+  reminder_hour: number;
+  reminder_enabled: boolean;
   timezone: string;
 }
 
@@ -36,15 +37,9 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`Current UTC time: ${currentHour}:${currentMinute}`);
 
     // Find users who should receive reminders at this hour
-    // We check for times within the current hour (with 5-minute buffer)
     const { data: usersToRemind, error: usersError } = await supabase
-      .from("user_preferences")
-      .select(`
-        user_id,
-        reminder_time,
-        timezone,
-        profiles!inner(email)
-      `)
+      .from("profiles")
+      .select("id, email, reminder_hour, reminder_enabled, timezone")
       .eq("reminder_enabled", true);
 
     if (usersError) {
@@ -74,32 +69,26 @@ const handler = async (req: Request): Promise<Response> => {
         const { data: todayEntry } = await supabase
           .from("journal_entries")
           .select("id")
-          .eq("user_id", user.user_id)
+          .eq("user_id", user.id)
           .eq("entry_date", today)
           .single();
 
         if (todayEntry) {
-          console.log(`User ${user.user_id} already logged today, skipping`);
+          console.log(`User ${user.id} already logged today, skipping`);
           continue;
         }
 
-        // Parse reminder time (format: HH:MM:SS)
-        const [hour] = user.reminder_time.split(':').map(Number);
-        
-        // Simple timezone-aware check - for now we'll use UTC offset
-        // For production, consider using a proper timezone library
-        if (hour === currentHour) {
-          const email = (user as any).profiles.email;
-          
-          if (!email) {
-            console.log(`No email for user ${user.user_id}`);
+        // Check if it's the right hour for this user
+        if (user.reminder_hour === currentHour) {
+          if (!user.email) {
+            console.log(`No email for user ${user.id}`);
             continue;
           }
 
           // Send reminder email
           const { error: emailError } = await resend.emails.send({
             from: "Joy Logger <onboarding@resend.dev>",
-            to: [email],
+            to: [user.email],
             subject: "✨ Time to capture today's joy",
             html: `
               <!DOCTYPE html>
@@ -153,16 +142,16 @@ const handler = async (req: Request): Promise<Response> => {
           });
 
           if (emailError) {
-            console.error(`Failed to send email to ${email}:`, emailError);
-            errors.push(`${email}: ${emailError.message}`);
+            console.error(`Failed to send email to ${user.email}:`, emailError);
+            errors.push(`${user.email}: ${emailError.message}`);
           } else {
-            console.log(`Sent reminder to ${email}`);
-            emailsSent.push(email);
+            console.log(`Sent reminder to ${user.email}`);
+            emailsSent.push(user.email);
           }
         }
       } catch (error: any) {
-        console.error(`Error processing user ${user.user_id}:`, error);
-        errors.push(`${user.user_id}: ${error.message}`);
+        console.error(`Error processing user ${user.id}:`, error);
+        errors.push(`${user.id}: ${error.message}`);
       }
     }
 
