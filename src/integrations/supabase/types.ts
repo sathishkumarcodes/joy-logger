@@ -22,6 +22,8 @@ export type Database = {
           entry_text: string
           id: string
           mood_score: number | null
+          photo_url: string | null
+          tags: string[] | null
           updated_at: string | null
           user_id: string
         }
@@ -32,6 +34,8 @@ export type Database = {
           entry_text: string
           id?: string
           mood_score?: number | null
+          photo_url?: string | null
+          tags?: string[] | null
           updated_at?: string | null
           user_id: string
         }
@@ -42,6 +46,8 @@ export type Database = {
           entry_text?: string
           id?: string
           mood_score?: number | null
+          photo_url?: string | null
+          tags?: string[] | null
           updated_at?: string | null
           user_id?: string
         }
@@ -77,6 +83,36 @@ export type Database = {
           reminder_hour?: number | null
           timezone?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          reminder_enabled: boolean
+          reminder_time: string
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reminder_enabled?: boolean
+          reminder_time?: string
+          timezone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reminder_enabled?: boolean
+          reminder_time?: string
+          timezone?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
