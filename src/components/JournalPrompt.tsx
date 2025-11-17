@@ -135,12 +135,14 @@ export const JournalPrompt = ({ onEntrySubmitted, hasEntryToday, userId }: Journ
 
         if (uploadError) throw uploadError;
 
-        // Get public URL
-        const { data: urlData } = supabase.storage
+        // Get signed URL for private bucket (1 year expiry)
+        const { data: signedUrlData, error: signedUrlError } = await supabase.storage
           .from('journal-photos')
-          .getPublicUrl(fileName);
+          .createSignedUrl(fileName, 31536000); // 1 year in seconds
+
+        if (signedUrlError) throw signedUrlError;
         
-        photoUrl = urlData.publicUrl;
+        photoUrl = signedUrlData.signedUrl;
       }
 
       // Generate AI reflection (and mood if not provided)
