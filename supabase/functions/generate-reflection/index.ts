@@ -6,13 +6,68 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Input validation schema
+interface GenerateReflectionInput {
+  entryText: string;
+  moodScore?: number | null;
+}
+
+const validateInput = (input: any): { valid: boolean; data?: GenerateReflectionInput; error?: string } => {
+  if (!input || typeof input !== 'object') {
+    return { valid: false, error: 'Invalid request body' };
+  }
+
+  const { entryText, moodScore } = input;
+
+  // Validate entryText
+  if (typeof entryText !== 'string') {
+    return { valid: false, error: 'entryText must be a string' };
+  }
+  if (entryText.trim().length === 0) {
+    return { valid: false, error: 'entryText cannot be empty' };
+  }
+  if (entryText.length > 500) {
+    return { valid: false, error: 'entryText must be less than 500 characters' };
+  }
+
+  // Validate moodScore (optional)
+  if (moodScore !== null && moodScore !== undefined) {
+    if (typeof moodScore !== 'number' || !Number.isInteger(moodScore)) {
+      return { valid: false, error: 'moodScore must be an integer' };
+    }
+    if (moodScore < 1 || moodScore > 5) {
+      return { valid: false, error: 'moodScore must be between 1 and 5' };
+    }
+  }
+
+  return { 
+    valid: true, 
+    data: { 
+      entryText: entryText.trim(), 
+      moodScore: moodScore === undefined ? null : moodScore 
+    } 
+  };
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { entryText, moodScore } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const validation = validateInput(body);
+    if (!validation.valid) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { entryText, moodScore } = validation.data!;
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {

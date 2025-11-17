@@ -6,13 +6,56 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Input validation
+interface MonthlyReflectionInput {
+  userId: string;
+  monthStart: string;
+  monthEnd: string;
+}
+
+const validateInput = (input: any): { valid: boolean; data?: MonthlyReflectionInput; error?: string } => {
+  if (!input || typeof input !== 'object') {
+    return { valid: false, error: 'Invalid request body' };
+  }
+
+  const { userId, monthStart, monthEnd } = input;
+
+  if (typeof userId !== 'string' || userId.length === 0) {
+    return { valid: false, error: 'userId must be a non-empty string' };
+  }
+
+  if (typeof monthStart !== 'string' || typeof monthEnd !== 'string') {
+    return { valid: false, error: 'monthStart and monthEnd must be strings' };
+  }
+
+  // Validate date format (YYYY-MM-DD)
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(monthStart) || !dateRegex.test(monthEnd)) {
+    return { valid: false, error: 'monthStart and monthEnd must be in YYYY-MM-DD format' };
+  }
+
+  return { valid: true, data: { userId, monthStart, monthEnd } };
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { userId, monthStart, monthEnd } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const validation = validateInput(body);
+    if (!validation.valid) {
+      console.error('Validation error:', validation.error);
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { userId, monthStart, monthEnd } = validation.data!;
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
