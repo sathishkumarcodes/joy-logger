@@ -77,7 +77,6 @@ const MonthlyReflection = () => {
 
       const { data, error } = await supabase.functions.invoke('generate-monthly-reflection', {
         body: {
-          userId: user?.id,
           monthStart,
           monthEnd
         }
