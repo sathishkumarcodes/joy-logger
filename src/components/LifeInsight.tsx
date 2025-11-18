@@ -21,7 +21,7 @@ export const LifeInsight = ({ userId, entriesCount }: LifeInsightProps) => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-life-insight', {
-        body: { userId, includeWeeklyTrend: true }
+        body: {}
       });
 
       if (error) throw error;

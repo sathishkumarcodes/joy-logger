@@ -8,7 +8,6 @@ const corsHeaders = {
 
 // Input validation
 interface MonthlyReflectionInput {
-  userId: string;
   monthStart: string;
   monthEnd: string;
 }
@@ -18,11 +17,7 @@ const validateInput = (input: any): { valid: boolean; data?: MonthlyReflectionIn
     return { valid: false, error: 'Invalid request body' };
   }
 
-  const { userId, monthStart, monthEnd } = input;
-
-  if (typeof userId !== 'string' || userId.length === 0) {
-    return { valid: false, error: 'userId must be a non-empty string' };
-  }
+  const { monthStart, monthEnd } = input;
 
   if (typeof monthStart !== 'string' || typeof monthEnd !== 'string') {
     return { valid: false, error: 'monthStart and monthEnd must be strings' };
@@ -34,7 +29,7 @@ const validateInput = (input: any): { valid: boolean; data?: MonthlyReflectionIn
     return { valid: false, error: 'monthStart and monthEnd must be in YYYY-MM-DD format' };
   }
 
-  return { valid: true, data: { userId, monthStart, monthEnd } };
+  return { valid: true, data: { monthStart, monthEnd } };
 };
 
 serve(async (req) => {
@@ -43,6 +38,33 @@ serve(async (req) => {
   }
 
   try {
+    // Extract and validate user from JWT token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userId = user.id;
+
     const body = await req.json();
     
     // Validate input
@@ -55,13 +77,7 @@ serve(async (req) => {
       );
     }
 
-    const { userId, monthStart, monthEnd } = validation.data!;
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { monthStart, monthEnd } = validation.data!;
 
     // Fetch entries for the month
     const { data: entries, error: entriesError } = await supabase
