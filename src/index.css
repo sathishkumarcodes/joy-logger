@@ -8,45 +8,55 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 40 30% 97%;
-    --foreground: 30 15% 20%;
+    --background: 35 50% 98%;
+    --foreground: 30 20% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 30 15% 20%;
+    --card-foreground: 30 20% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 30 15% 20%;
+    --popover-foreground: 30 20% 15%;
 
-    --primary: 28 85% 58%;
+    --primary: 25 95% 60%;
     --primary-foreground: 0 0% 100%;
     
-    --primary-glow: 35 90% 65%;
+    --primary-glow: 35 98% 68%;
+    --primary-soft: 28 90% 85%;
+    
+    --peach: 15 85% 75%;
+    --blush: 350 70% 88%;
+    --amber-warm: 40 95% 65%;
+    --ivory: 45 60% 95%;
 
-    --secondary: 120 15% 75%;
-    --secondary-foreground: 30 15% 20%;
+    --secondary: 120 20% 80%;
+    --secondary-foreground: 30 20% 15%;
 
-    --muted: 40 20% 92%;
-    --muted-foreground: 30 10% 45%;
+    --muted: 40 30% 96%;
+    --muted-foreground: 30 15% 40%;
 
-    --accent: 120 25% 85%;
-    --accent-foreground: 30 15% 20%;
+    --accent: 40 50% 92%;
+    --accent-foreground: 30 20% 15%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 20% 88%;
-    --input: 40 20% 90%;
-    --ring: 28 85% 58%;
+    --border: 40 25% 92%;
+    --input: 40 30% 94%;
+    --ring: 25 95% 60%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
-    --gradient-sunrise: linear-gradient(135deg, hsl(28 85% 58%), hsl(35 90% 65%));
-    --gradient-subtle: linear-gradient(180deg, hsl(40 30% 97%), hsl(40 25% 94%));
+    --gradient-sunrise: linear-gradient(135deg, hsl(25 95% 60%) 0%, hsl(35 98% 68%) 50%, hsl(40 95% 65%) 100%);
+    --gradient-dawn: linear-gradient(180deg, hsl(15 85% 75%) 0%, hsl(350 70% 88%) 100%);
+    --gradient-glow: radial-gradient(circle at 50% 0%, hsl(35 98% 68% / 0.3) 0%, transparent 70%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(40 50% 98%) 100%);
     
-    --shadow-soft: 0 4px 20px -4px hsl(28 85% 58% / 0.15);
-    --shadow-glow: 0 0 30px hsl(35 90% 65% / 0.3);
+    --shadow-soft: 0 2px 24px -8px hsl(25 95% 60% / 0.12);
+    --shadow-warm: 0 8px 32px -8px hsl(35 98% 68% / 0.2);
+    --shadow-glow: 0 0 48px hsl(35 98% 68% / 0.35);
     
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .dark {
