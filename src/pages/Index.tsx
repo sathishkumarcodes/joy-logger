@@ -216,23 +216,26 @@ const Index = () => {
           {/* Shareable Card CTA - Show after entry is submitted */}
           {todayEntry && (
             <div className="animate-fade-up" style={{ animationDelay: "0.08s", animationFillMode: "both" }}>
-              <Card className="p-6 bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5 border-primary/20">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-center sm:text-left">
-                    <h3 className="font-semibold text-lg mb-1 flex items-center gap-2 justify-center sm:justify-start">
-                      <Sparkles className="w-5 h-5 text-primary" />
-                      Turn today's moment into something shareable
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Create a beautiful graphic card perfect for Instagram, Stories, or Messages
+              <Card className="p-8 bg-gradient-to-br from-primary/20 via-accent/20 to-primary/10 border-2 border-primary/30 shadow-lg">
+                <div className="flex flex-col items-center gap-6 text-center">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-center gap-2">
+                      <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                      <h3 className="font-bold text-2xl bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+                        Share Your Good Thing!
+                      </h3>
+                      <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                    </div>
+                    <p className="text-base text-foreground/80 max-w-lg mx-auto">
+                      Turn your entry into a beautiful shareable image for Instagram, Stories, or Messages
                     </p>
                   </div>
                   <Button 
                     onClick={() => setShowShareableCard(true)}
                     size="lg"
-                    className="gap-2 whitespace-nowrap"
+                    className="gap-2 text-lg px-8 py-6 shadow-xl hover:scale-105 transition-transform"
                   >
-                    <Share2 className="w-4 h-4" />
+                    <Share2 className="w-5 h-5" />
                     Create Shareable Card
                   </Button>
                 </div>
