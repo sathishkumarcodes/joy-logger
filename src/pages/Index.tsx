@@ -113,13 +113,16 @@ const Index = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background">
-      <div className="container max-w-3xl mx-auto px-4 py-8 sm:py-12">
+    <div className="min-h-screen bg-gradient-to-br from-background via-ivory to-background">
+      <div className="container max-w-4xl mx-auto px-4 py-8 sm:py-16">
         {/* Header */}
-        <div className="flex items-center justify-between mb-10 animate-fade-up">
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-            OneGoodThing
-          </h1>
+        <div className="flex items-center justify-between mb-12 animate-fade-up">
+          <div>
+            <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-sunrise bg-clip-text text-transparent mb-2">
+              OneGoodThing
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base">Find a little light in your day ☀️</p>
+          </div>
           <div className="flex gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -199,41 +202,52 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="space-y-10">
+        <div className="space-y-12">
 
-          {/* Streak Counter */}
-          <StreakCounter streak={streak} />
+          {/* Hero: Streak Counter */}
+          <div className="animate-fade-up">
+            <StreakCounter streak={streak} />
+          </div>
 
-          {/* Primary Action - Journal Prompt */}
-          <div className="animate-fade-up" style={{ animationDelay: "0.05s", animationFillMode: "both" }}>
-            <JournalPrompt 
-              onEntrySubmitted={fetchEntries}
-              hasEntryToday={hasEntryToday}
-              userId={user.id}
-            />
+          {/* Today's Reflection - Journal Prompt */}
+          <div className="animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
+            <div className="space-y-3">
+              <h2 className="text-2xl font-bold text-foreground">Today's Reflection</h2>
+              <p className="text-muted-foreground">What brought you joy today?</p>
+            </div>
+            <div className="mt-4">
+              <JournalPrompt 
+                onEntrySubmitted={fetchEntries}
+                hasEntryToday={hasEntryToday}
+                userId={user.id}
+              />
+            </div>
           </div>
 
           {/* Shareable Card CTA - Show after entry is submitted */}
           {todayEntry && (
-            <div className="animate-fade-up" style={{ animationDelay: "0.08s", animationFillMode: "both" }}>
-              <Card className="p-8 bg-gradient-to-br from-primary/20 via-accent/20 to-primary/10 border-2 border-primary/30 shadow-lg">
-                <div className="flex flex-col items-center gap-6 text-center">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <Sparkles className="w-6 h-6 text-primary animate-pulse" />
-                      <h3 className="font-bold text-2xl bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-                        Share Your Good Thing!
+            <div className="animate-fade-up" style={{ animationDelay: "0.15s", animationFillMode: "both" }}>
+              <Card className="relative overflow-hidden border-0 shadow-warm bg-gradient-to-br from-primary-soft/30 via-peach/20 to-blush/30">
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent bg-[length:200%_100%] animate-shimmer" />
+                
+                <div className="relative p-8 sm:p-10 flex flex-col items-center gap-6 text-center">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center gap-3">
+                      <Sparkles className="w-7 h-7 text-primary animate-pulse" />
+                      <h3 className="font-bold text-3xl bg-gradient-sunrise bg-clip-text text-transparent">
+                        Turn This Into Something Beautiful
                       </h3>
-                      <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                      <Sparkles className="w-7 h-7 text-primary animate-pulse" />
                     </div>
-                    <p className="text-base text-foreground/80 max-w-lg mx-auto">
-                      Turn your entry into a beautiful shareable image for Instagram, Stories, or Messages
+                    <p className="text-lg text-foreground/70 max-w-xl mx-auto leading-relaxed">
+                      Transform today's moment into a stunning shareable card — perfect for Instagram Stories, Messages, or just keeping for yourself ✨
                     </p>
                   </div>
                   <Button 
                     onClick={() => setShowShareableCard(true)}
                     size="lg"
-                    className="gap-2 text-lg px-8 py-6 shadow-xl hover:scale-105 transition-transform"
+                    className="gap-3 text-lg px-10 py-7 shadow-warm hover:shadow-glow hover:scale-105 transition-all bg-gradient-sunrise border-0"
                   >
                     <Share2 className="w-5 h-5" />
                     Create Shareable Card
@@ -243,33 +257,38 @@ const Index = () => {
             </div>
           )}
 
-          {/* Today's Insight */}
+          {/* AI Insight */}
           {entries.length >= 1 && (
-            <div className="animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
+            <div className="animate-fade-up" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
               <LifeInsight userId={user.id} entriesCount={entries.length} />
             </div>
           )}
 
           {/* Memory Resurfacing */}
           {entries.length >= 5 && (
-            <div className="animate-fade-up" style={{ animationDelay: "0.12s", animationFillMode: "both" }}>
+            <div className="animate-fade-up" style={{ animationDelay: "0.25s", animationFillMode: "both" }}>
               <MemoryResurfacing userId={user.id} />
             </div>
           )}
 
-          {/* Journey Summary */}
+          {/* Journey Insights */}
           {entries.length >= 3 && (
-            <div className="animate-fade-up" style={{ animationDelay: "0.15s", animationFillMode: "both" }}>
-              <JourneySummary totalEntries={entries.length} onViewStats={() => navigate("/stats")} />
+            <div className="animate-fade-up" style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-foreground">Your Journey Insights</h2>
+                <JourneySummary totalEntries={entries.length} onViewStats={() => navigate("/stats")} />
+              </div>
             </div>
           )}
 
-          {/* Saved Moments - Entry History */}
-          <EntryHistory entries={entries} onUpdate={fetchEntries} />
+          {/* Moments You've Saved */}
+          <div className="animate-fade-up" style={{ animationDelay: "0.35s", animationFillMode: "both" }}>
+            <EntryHistory entries={entries} onUpdate={fetchEntries} />
+          </div>
 
           {/* Social Share - Bottom */}
           {todayEntry && (
-            <div className="animate-fade-up" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
+            <div className="animate-fade-up" style={{ animationDelay: "0.4s", animationFillMode: "both" }}>
               <SocialShare 
                 streak={streak} 
                 todayEntry={todayEntry.entry_text}
