@@ -6,11 +6,14 @@ import { EntryHistory } from "@/components/EntryHistory";
 import { LifeInsight } from "@/components/LifeInsight";
 import { MemoryResurfacing } from "@/components/MemoryResurfacing";
 import { SocialShare } from "@/components/SocialShare";
+import { ShareableReflectionCard } from "@/components/ShareableReflectionCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, Settings, LogOut, BarChart3, Calendar, Sparkles } from "lucide-react";
+import { Loader2, Settings, LogOut, BarChart3, Calendar, Sparkles, Share2 } from "lucide-react";
 import { JourneySummary } from "@/components/JourneySummary";
 
 const Index = () => {
@@ -21,6 +24,7 @@ const Index = () => {
   const [hasEntryToday, setHasEntryToday] = useState(false);
   const [todayEntry, setTodayEntry] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showShareableCard, setShowShareableCard] = useState(false);
 
   const calculateStreak = (entries: any[]) => {
     if (entries.length === 0) return 0;
@@ -209,6 +213,33 @@ const Index = () => {
             />
           </div>
 
+          {/* Shareable Card CTA - Show after entry is submitted */}
+          {todayEntry && (
+            <div className="animate-fade-up" style={{ animationDelay: "0.08s", animationFillMode: "both" }}>
+              <Card className="p-6 bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5 border-primary/20">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-center sm:text-left">
+                    <h3 className="font-semibold text-lg mb-1 flex items-center gap-2 justify-center sm:justify-start">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      Turn today's moment into something shareable
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Create a beautiful graphic card perfect for Instagram, Stories, or Messages
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => setShowShareableCard(true)}
+                    size="lg"
+                    className="gap-2 whitespace-nowrap"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Create Shareable Card
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          )}
+
           {/* Today's Insight */}
           {entries.length >= 1 && (
             <div className="animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
@@ -245,6 +276,26 @@ const Index = () => {
           )}
         </div>
       </div>
+
+      {/* Shareable Card Dialog */}
+      <Dialog open={showShareableCard} onOpenChange={setShowShareableCard}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              Your Shareable Moment
+            </DialogTitle>
+          </DialogHeader>
+          {todayEntry && (
+            <ShareableReflectionCard
+              entryText={todayEntry.entry_text}
+              date={todayEntry.entry_date}
+              mood={todayEntry.mood_score}
+              onClose={() => setShowShareableCard(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
