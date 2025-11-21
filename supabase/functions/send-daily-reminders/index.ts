@@ -85,11 +85,67 @@ const handler = async (req: Request): Promise<Response> => {
             continue;
           }
 
+          // Fetch user's last entry for personalization
+          const { data: lastEntry } = await supabase
+            .from("journal_entries")
+            .select("entry_text, entry_date, mood_score")
+            .eq("user_id", user.id)
+            .order("entry_date", { ascending: false })
+            .limit(1)
+            .single();
+
+          // Calculate streak
+          const { data: allEntries } = await supabase
+            .from("journal_entries")
+            .select("entry_date")
+            .eq("user_id", user.id)
+            .order("entry_date", { ascending: false });
+
+          let streakCount = 0;
+          if (allEntries && allEntries.length > 0) {
+            const dates = allEntries.map(e => e.entry_date);
+            let currentDate = new Date(dates[0]);
+            streakCount = 1;
+            
+            for (let i = 1; i < dates.length; i++) {
+              const prevDate = new Date(dates[i]);
+              const diffDays = Math.floor((currentDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+              
+              if (diffDays === 1) {
+                streakCount++;
+                currentDate = prevDate;
+              } else {
+                break;
+              }
+            }
+          }
+
+          // Get total days for journey count
+          const { count: totalDays } = await supabase
+            .from("journal_entries")
+            .select("*", { count: "exact", head: true })
+            .eq("user_id", user.id);
+
+          const journeyDay = (totalDays || 0) + 1;
+
+          // Create personalized content
+          const lastEntryText = lastEntry ? lastEntry.entry_text.substring(0, 60) + (lastEntry.entry_text.length > 60 ? "..." : "") : "";
+          const moodEmoji = lastEntry?.mood_score ? ["😔", "😕", "😐", "🙂", "😊"][lastEntry.mood_score - 1] : "✨";
+          
+          const reflectiveQuestions = [
+            "What made today worth remembering?",
+            "Who made your day better?",
+            "What small moment brought you peace today?",
+            "What are you grateful for right now?",
+            "What made you smile today?"
+          ];
+          const randomQuestion = reflectiveQuestions[Math.floor(Math.random() * reflectiveQuestions.length)];
+
           // Send reminder email
           const { error: emailError } = await resend.emails.send({
-            from: "Joy Logger <onboarding@resend.dev>",
+            from: "OneGoodThing <onboarding@resend.dev>",
             to: [user.email],
-            subject: "✨ Time to capture today's joy",
+            subject: streakCount > 0 ? `Day ${streakCount + 1} — What's your good thing today?` : "✨ What's your good thing today?",
             html: `
               <!DOCTYPE html>
               <html>
@@ -97,48 +153,84 @@ const handler = async (req: Request): Promise<Response> => {
                   <meta charset="utf-8">
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 </head>
-                <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-                  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 40px 30px; text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: white; margin: 0 0 10px 0; font-size: 32px;">✨ A moment for you</h1>
-                    <p style="color: rgba(255, 255, 255, 0.9); margin: 0; font-size: 18px;">What brought you joy today?</p>
-                  </div>
+                <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fefdfb;">
                   
+                  <!-- Small Logo -->
+                  <div style="text-align: center; margin-bottom: 32px; padding-top: 20px;">
+                    <div style="display: inline-block; padding: 8px 16px; background: linear-gradient(135deg, #FFDAB9 0%, #FFB6A3 50%, #FFA07A 100%); border-radius: 20px;">
+                      <span style="font-size: 18px; font-weight: 600; color: #fff;">☀️ OneGoodThing</span>
+                    </div>
+                  </div>
+
+                  <!-- Personal Greeting -->
                   <div style="padding: 0 20px;">
-                    <p style="font-size: 16px; margin-bottom: 20px;">
-                      Hey there! 👋
+                    ${streakCount > 0 ? `
+                      <p style="font-size: 14px; color: #E07B39; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        🔥 ${streakCount}-day streak
+                      </p>
+                    ` : ''}
+                    
+                    <h2 style="font-size: 24px; color: #2D2D2D; margin: 0 0 16px 0; font-weight: 600; line-height: 1.3;">
+                      ${streakCount > 0 ? "You're on a roll." : "A moment just for you."}
+                    </h2>
+                    
+                    <p style="font-size: 16px; color: #666; margin-bottom: 24px; line-height: 1.6;">
+                      ${lastEntry ? `Yesterday, you reflected on: <em style="color: #E07B39;">"${lastEntryText}"</em> ${moodEmoji}` : "Today is day " + journeyDay + " of your journey."}
+                    </p>
+
+                    ${streakCount > 0 ? `
+                      <p style="font-size: 16px; color: #666; margin-bottom: 28px; line-height: 1.6;">
+                        Each day you show up, you're building something meaningful. Keep going.
+                      </p>
+                    ` : ''}
+
+                    <!-- Reflective Question -->
+                    <div style="background: linear-gradient(135deg, rgba(255, 218, 185, 0.3) 0%, rgba(255, 182, 163, 0.2) 100%); border-left: 3px solid #E07B39; border-radius: 8px; padding: 20px 24px; margin: 28px 0;">
+                      <p style="font-size: 18px; color: #2D2D2D; margin: 0; font-weight: 500; font-style: italic;">
+                        ${randomQuestion}
+                      </p>
+                    </div>
+
+                    <p style="font-size: 15px; color: #666; margin: 24px 0; line-height: 1.6;">
+                      It doesn't have to be big. A kind word, a quiet moment, something that made you pause — that counts.
                     </p>
                     
-                    <p style="font-size: 16px; margin-bottom: 20px;">
-                      Remember: it doesn't have to be big. Maybe it was:
-                    </p>
-                    
-                    <ul style="font-size: 16px; margin-bottom: 25px; padding-left: 20px;">
-                      <li style="margin-bottom: 8px;">☕ That perfect cup of coffee</li>
-                      <li style="margin-bottom: 8px;">🎵 A song that made you smile</li>
-                      <li style="margin-bottom: 8px;">💬 A text from someone you love</li>
-                      <li style="margin-bottom: 8px;">🌤️ The way the light looked through your window</li>
-                    </ul>
-                    
-                    <p style="font-size: 16px; margin-bottom: 25px;">
-                      These small moments add up. Take 60 seconds to log it — your future self will thank you.
-                    </p>
-                    
-                    <div style="text-align: center; margin: 35px 0;">
+                    <!-- CTA -->
+                    <div style="text-align: center; margin: 36px 0;">
                       <a href="${supabaseUrl.replace('.supabase.co', '.lovableproject.com')}" 
-                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 40px; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
-                        Log Today's Joy →
+                         style="background: linear-gradient(135deg, #E07B39 0%, #D4916E 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px; display: inline-block; box-shadow: 0 2px 12px rgba(224, 123, 57, 0.25); transition: transform 0.2s;">
+                        Capture today's moment →
                       </a>
                     </div>
                     
-                    <div style="margin-top: 40px; padding-top: 25px; border-top: 1px solid #e5e5e5;">
-                      <p style="font-size: 14px; color: #666; margin: 0;">
-                        These daily reminders help you build the habit. You can adjust the time or turn them off anytime in your settings.
+                    <!-- Footer -->
+                    <div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #E8E8E8; text-align: center;">
+                      <p style="font-size: 13px; color: #999; margin: 0 0 8px 0; line-height: 1.5;">
+                        This is day ${journeyDay} of your journey.
+                      </p>
+                      <p style="font-size: 13px; color: #999; margin: 0; line-height: 1.5;">
+                        You can change your reminder time or turn these off in <a href="${supabaseUrl.replace('.supabase.co', '.lovableproject.com')}/settings" style="color: #E07B39; text-decoration: none;">settings</a>.
                       </p>
                     </div>
                   </div>
                 </body>
               </html>
             `,
+            text: `
+OneGoodThing
+
+${streakCount > 0 ? `🔥 ${streakCount}-day streak\n\n` : ''}${streakCount > 0 ? "You're on a roll." : "A moment just for you."}
+
+${lastEntry ? `Yesterday, you reflected on: "${lastEntryText}" ${moodEmoji}\n\n` : `Today is day ${journeyDay} of your journey.\n\n`}${streakCount > 0 ? "Each day you show up, you're building something meaningful. Keep going.\n\n" : ''}${randomQuestion}
+
+It doesn't have to be big. A kind word, a quiet moment, something that made you pause — that counts.
+
+Capture today's moment: ${supabaseUrl.replace('.supabase.co', '.lovableproject.com')}
+
+---
+This is day ${journeyDay} of your journey.
+Change your reminder time or turn these off: ${supabaseUrl.replace('.supabase.co', '.lovableproject.com')}/settings
+            `.trim(),
           });
 
           if (emailError) {
