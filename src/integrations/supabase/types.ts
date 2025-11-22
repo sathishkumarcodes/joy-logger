@@ -59,6 +59,7 @@ export type Database = {
           created_at: string | null
           email: string | null
           id: string
+          phone: string | null
           reminder_enabled: boolean | null
           reminder_hour: number | null
           timezone: string | null
@@ -69,6 +70,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id: string
+          phone?: string | null
           reminder_enabled?: boolean | null
           reminder_hour?: number | null
           timezone?: string | null
@@ -79,6 +81,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id?: string
+          phone?: string | null
           reminder_enabled?: boolean | null
           reminder_hour?: number | null
           timezone?: string | null
