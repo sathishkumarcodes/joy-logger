@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Sparkles, Mail, Loader2 } from "lucide-react";
 import FloatingParticles from "@/components/FloatingParticles";
 import SignInCelebration from "@/components/SignInCelebration";
+import { PhoneLogin } from "@/components/PhoneLogin";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -106,37 +108,50 @@ const Auth = () => {
           </p>
         </div>
 
-        <form onSubmit={handleMagicLink} className="space-y-4 animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Email</label>
-            <Input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isLoading}
-              className="border-2 transition-all focus:scale-[1.02]"
-            />
-          </div>
+        <Tabs defaultValue="email" className="w-full animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="email">Email</TabsTrigger>
+            <TabsTrigger value="phone">Phone</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="email" className="space-y-4">
+            <form onSubmit={handleMagicLink} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Email</label>
+                <Input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  className="border-2 transition-all focus:scale-[1.02]"
+                />
+              </div>
 
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-glow transition-all hover:scale-[1.02]"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              <>
-                <Mail className="mr-2 h-4 w-4" />
-                Send Magic Link
-              </>
-            )}
-          </Button>
-        </form>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-glow transition-all hover:scale-[1.02]"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="mr-2 h-4 w-4" />
+                    Send Magic Link
+                  </>
+                )}
+              </Button>
+            </form>
+          </TabsContent>
+          
+          <TabsContent value="phone">
+            <PhoneLogin />
+          </TabsContent>
+        </Tabs>
 
         <div className="relative animate-fade-up" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
           <div className="absolute inset-0 flex items-center">
