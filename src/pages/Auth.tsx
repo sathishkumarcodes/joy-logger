@@ -17,9 +17,35 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
         setShowCelebration(true);
+        
+        // Check if this is a new user (profile just created in the last minute)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('created_at')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (profile) {
+          const profileAge = Date.now() - new Date(profile.created_at).getTime();
+          const isNewUser = profileAge < 60000; // Less than 1 minute old
+          
+          // Send welcome email for new users
+          if (isNewUser && session.user.email) {
+            try {
+              await supabase.functions.invoke('send-welcome-email', {
+                body: {
+                  email: session.user.email,
+                },
+              });
+              console.log('Welcome email sent to new user');
+            } catch (error) {
+              console.error('Error sending welcome email:', error);
+            }
+          }
+        }
       }
     });
 
