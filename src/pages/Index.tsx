@@ -213,7 +213,20 @@ const Index = () => {
           <div className="animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
             <div className="space-y-3">
               <h2 className="text-2xl font-bold text-foreground">Today's Reflection</h2>
-              <p className="text-muted-foreground">What brought you joy today?</p>
+              {entries.length === 0 ? (
+                <Card className="border-primary/20 bg-gradient-to-br from-primary-soft/20 to-blush/10 p-6 mb-4">
+                  <div className="space-y-3">
+                    <p className="text-lg font-medium text-foreground">
+                      ✨ Welcome! Ready to capture your first moment?
+                    </p>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Take just 30 seconds to write about one good thing from today. You'll be surprised how much difference this simple practice makes — we promise you'll see it! 🌅
+                    </p>
+                  </div>
+                </Card>
+              ) : (
+                <p className="text-muted-foreground">What brought you joy today?</p>
+              )}
             </div>
             <div className="mt-4">
               <JournalPrompt 
