@@ -6,5 +6,8 @@ verify_jwt = false
 [functions.send-welcome-email]
 verify_jwt = false
 
+[functions.send-followup-email]
+verify_jwt = false
+
 [functions.generate-shareable-quote]
 verify_jwt = true
