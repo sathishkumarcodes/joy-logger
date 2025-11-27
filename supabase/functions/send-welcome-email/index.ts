@@ -27,7 +27,7 @@ const handler = async (req: Request): Promise<Response> => {
     const displayName = name || "Friend";
 
     const emailResponse = await resend.emails.send({
-      from: "OneGoodThing <onboarding@resend.dev>",
+      from: "OneGoodThing <info@onegoodthingapp.com>",
       to: [email],
       subject: "Welcome to OneGoodThing ☀️",
       html: `

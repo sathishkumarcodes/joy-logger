@@ -143,7 +143,7 @@ const handler = async (req: Request): Promise<Response> => {
 
           // Send reminder email
           const { error: emailError } = await resend.emails.send({
-            from: "OneGoodThing <onboarding@resend.dev>",
+            from: "OneGoodThing <info@onegoodthingapp.com>",
             to: [user.email],
             subject: streakCount > 0 ? `Day ${streakCount + 1} — What's your good thing today?` : "✨ What's your good thing today?",
             html: `
