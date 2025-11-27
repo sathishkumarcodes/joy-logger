@@ -76,7 +76,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         try {
           const emailResponse = await resend.emails.send({
-            from: "OneGoodThing <onboarding@resend.dev>",
+            from: "OneGoodThing <info@onegoodthingapp.com>",
             to: [profile.email!],
             subject: "Still thinking about your first good thing? ✨",
             html: `
