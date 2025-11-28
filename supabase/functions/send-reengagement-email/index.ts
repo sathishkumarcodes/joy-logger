@@ -328,7 +328,7 @@ const handler = async (req: Request): Promise<Response> => {
                 `}
 
                 <div class="cta">
-                  <a href="${Deno.env.get('VITE_SUPABASE_URL')?.replace('https://rpfqagyqddroysqpinqv.supabase.co', 'https://onegoodthing.lovable.app') || 'https://onegoodthing.lovable.app'}" class="button">
+                  <a href="https://onegoodthingapp.com" class="button">
                     ${totalEntries > 0 ? 'Continue Your Journey ✨' : 'Start Your First Entry ✨'}
                   </a>
                 </div>
