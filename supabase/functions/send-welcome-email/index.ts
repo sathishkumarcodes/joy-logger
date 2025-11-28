@@ -167,11 +167,11 @@ const handler = async (req: Request): Promise<Response> => {
               <p style="margin-bottom: 0; color: #666;">Just write your first entry, and you'll understand why thousands of people do this every single day.</p>
             </div>
 
-            <div class="cta">
-              <a href="${Deno.env.get('VITE_SUPABASE_URL')?.replace('https://rpfqagyqddroysqpinqv.supabase.co', 'https://onegoodthing.lovable.app') || 'https://onegoodthing.lovable.app'}" class="button">
-                Write Your First Entry ✨
-              </a>
-            </div>
+              <div class="cta">
+                <a href="https://onegoodthingapp.com" class="button">
+                  Write Your First Entry ✨
+                </a>
+              </div>
 
             <p style="text-align: center; color: #666; font-size: 14px; margin-top: 24px;">
               Start today — your future self will thank you 🌟
